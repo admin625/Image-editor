@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Product Image Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #0d1117 100%);
+            min-height: 100vh;
+            color: #e6edf3;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            font-size: 1.1rem;
+        }
+
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        @media (max-width: 900px) {
+            .editor-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 28px;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e6edf3;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #58a6ff, #a371f7);
+            border-radius: 2px;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #30363d;
+            border-radius: 12px;
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(13, 17, 23, 0.5);
+        }
+
+        .upload-area:hover {
+            border-color: #58a6ff;
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .upload-area.has-image {
+            padding: 16px;
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            opacity: 0.6;
+        }
+
+        .upload-text {
+            color: #8b949e;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            color: #6e7681;
+            font-size: 0.85rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .preview-image.visible {
+            display: block;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-top: 24px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #e6edf3;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            color: #e6edf3;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.2s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        textarea::placeholder {
+            color: #6e7681;
+        }
+
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #58a6ff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            background: rgba(88, 166, 255, 0.2);
+            border-color: #58a6ff;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px 24px;
+            margin-top: 24px;
+            background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(35, 134, 54, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Loading State */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .submit-btn.loading .spinner {
+            display: block;
+        }
+
+        .submit-btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Result Panel */
+        .result-area {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-placeholder {
+            text-align: center;
+            color: #6e7681;
+        }
+
+        .result-placeholder svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .result-image {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        .result-image.visible {
+            display: block;
+        }
+
+        .result-actions {
+            display: none;
+            gap: 12px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .result-actions.visible {
+            display: flex;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn.primary {
+            background: #58a6ff;
+            border: none;
+            color: #0d1117;
+        }
+
+        .action-btn.primary:hover {
+            background: #79b8ff;
+        }
+
+        .action-btn.secondary {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+        }
+
+        .action-btn.secondary:hover {
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        /* Error State */
+        .error-message {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+            border-radius: 8px;
+            padding: 16px;
+            color: #f85149;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        /* Status Indicator */
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(88, 166, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #58a6ff;
+        }
+
+        .status.hidden {
+            display: none;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #58a6ff;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Amazon Product Image Editor</h1>
+            <p class="subtitle">Upload your product photo, describe what to add, get a professional listing image</p>
+        </header>
+
+        <div class="editor-grid">
+            <!-- Input Panel -->
+            <div class="panel">
+                <div class="panel-title">Original Product Image</div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="upload-text">Drop your product image here or click to browse</p>
+                    <p class="upload-hint">Supports JPG, PNG, WebP</p>
+                    <img class="preview-image" id="previewImage" alt="Preview">
+                </div>
+                <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+
+                <div class="form-group">
+                    <label for="prompt">What would you like to add?</label>
+                    <textarea 
+                        id="prompt" 
+                        placeholder="Example: Add a fresh whole wheat sandwich with turkey, lettuce, tomato, and melted Swiss cheese sitting inside the open container. Make it look appetizing and ready to eat."
+                    ></textarea>
+                    <div class="suggestion-chips">
+                        <span class="chip" data-prompt="Add fresh food inside the container that looks appetizing">Add food</span>
+                        <span class="chip" data-prompt="Place the product on a clean kitchen countertop with soft natural lighting">Kitchen setting</span>
+                        <span class="chip" data-prompt="Add steam rising from the product to show it's hot and fresh">Add steam</span>
+                        <span class="chip" data-prompt="Surround the product with fresh ingredients that complement it">Fresh ingredients</span>
+                    </div>
+                </div>
+
+                <button class="submit-btn" id="submitBtn" disabled>
+                    <span class="btn-text">Generate Enhanced Image</span>
+                    <div class="spinner"></div>
+                </button>
+
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="panel">
+                <div class="panel-title">Enhanced Result</div>
+                
+                <div class="status hidden" id="status">
+                    <div class="status-dot"></div>
+                    <span id="statusText">Processing your image...</span>
+                </div>
+
+                <div class="result-area">
+                    <div class="result-placeholder" id="resultPlaceholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                        <p>Your enhanced image will appear here</p>
+                    </div>
+                    <img class="result-image" id="resultImage" alt="Enhanced Result">
+                    <div class="result-actions" id="resultActions">
+                        <button class="action-btn secondary" id="retryBtn">Try Different Prompt</button>
+                        <button class="action-btn primary" id="downloadBtn">Download Image</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const WEBHOOK_URL = 'https://jmac.app.n8n.cloud/webhook/image-edit';
+
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewImage = document.getElementById('previewImage');
+        const promptTextarea = document.getElementById('prompt');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const resultImage = document.getElementById('resultImage');
+        const resultActions = document.getElementById('resultActions');
+        const retryBtn = document.getElementById('retryBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const chips = document.querySelectorAll('.chip');
+
+        // State
+        let currentImageBase64 = null;
+        let currentMimeType = null;
+
+        // File Upload Handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#58a6ff';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#30363d';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#30363d';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+
+        function handleImageUpload(file) {
+            currentMimeType = file.type;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Full = e.target.result;
+                // Extract just the base64 data without the data URL prefix
+                currentImageBase64 = base64Full.split(',')[1];
+                
+                // Show preview
+                previewImage.src = base64Full;
+                previewImage.classList.add('visible');
+                uploadArea.classList.add('has-image');
+                
+                // Hide upload prompt elements
+                uploadArea.querySelector('.upload-icon').style.display = 'none';
+                uploadArea.querySelector('.upload-text').style.display = 'none';
+                uploadArea.querySelector('.upload-hint').style.display = 'none';
+                
+                updateSubmitButton();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Prompt Chips
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                promptTextarea.value = chip.dataset.prompt;
+                updateSubmitButton();
+            });
+        });
+
+        promptTextarea.addEventListener('input', updateSubmitButton);
+
+        function updateSubmitButton() {
+            submitBtn.disabled = !currentImageBase64 || !promptTextarea.value.trim();
+        }
+
+        // Form Submission
+        submitBtn.addEventListener('click', async () => {
+            if (!currentImageBase64 || !promptTextarea.value.trim()) return;
+
+            // UI: Loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            errorMessage.classList.remove('visible');
+            status.classList.remove('hidden');
+            statusText.textContent = 'Sending to AI...';
+            resultPlaceholder.style.display = 'none';
+            resultImage.classList.remove('visible');
+            resultActions.classList.remove('visible');
+
+            try {
+                statusText.textContent = 'Generating enhanced image...';
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image: currentImageBase64,
+                        mimeType: currentMimeType,
+                        prompt: promptTextarea.value.trim()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Handle Gemini response - extract image from response
+                // The response structure from Gemini is: candidates[0].content.parts[0].inlineData.data
+                let imageData = null;
+                
+                if (data.candidates && data.candidates[0]?.content?.parts) {
+                    for (const part of data.candidates[0].content.parts) {
+                        if (part.inlineData?.data) {
+                            imageData = part.inlineData.data;
+                            break;
+                        }
+                    }
+                }
+
+                if (!imageData) {
+                    // Check if error message in response
+                    if (data.error) {
+                        throw new Error(data.error.message || 'API error');
+                    }
+                    throw new Error('No image returned from AI. Check the n8n execution logs.');
+                }
+
+                // Display result
+                resultImage.src = `data:image/jpeg;base64,${imageData}`;
+                resultImage.classList.add('visible');
+                resultActions.classList.add('visible');
+                status.classList.add('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = `Error: ${error.message}`;
+                errorMessage.classList.add('visible');
+                status.classList.add('hidden');
+                resultPlaceholder.style.display = 'block';
+            } finally {
+                submitBtn.classList.remove('loading');
+                updateSubmitButton();
+            }
+        });
+
+        // Retry with different prompt
+        retryBtn.addEventListener('click', () => {
+            promptTextarea.focus();
+            promptTextarea.select();
+        });
+
+        // Download result
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = resultImage.src;
+            link.download = `enhanced-product-${Date.now()}.jpg`;
+            link.click();
+        });
+    </script>
+</body>
+</html>
