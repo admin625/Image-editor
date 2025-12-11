@@ -3,172 +3,318 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FCA Photo Upload Test</title>
+  <title>Upload Photos | FCA</title>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #1a1a2e;
-      color: #eee;
-    }
-    h1 { color: #00d4aa; margin-bottom: 10px; }
-    p.subtitle { color: #888; margin-top: 0; }
-    label { display: block; margin-top: 20px; font-weight: 600; }
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      border: 1px solid #333;
-      border-radius: 6px;
-      background: #252540;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
       color: #fff;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: #00d4aa;
+    }
+    
+    .header p {
+      color: #888;
       font-size: 14px;
     }
-    .drop-zone {
-      margin-top: 20px;
-      padding: 40px;
-      border: 2px dashed #444;
+    
+    .card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    input[type="email"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.2);
       border-radius: 8px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 24px;
+      transition: border-color 0.2s;
+    }
+    
+    input[type="email"]:focus {
+      outline: none;
+      border-color: #00d4aa;
+    }
+    
+    input[type="email"]::placeholder {
+      color: #666;
+    }
+    
+    .drop-zone {
+      border: 2px dashed rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 40px 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
+      margin-bottom: 20px;
     }
-    .drop-zone:hover, .drop-zone.dragover {
+    
+    .drop-zone:hover,
+    .drop-zone.dragover {
       border-color: #00d4aa;
-      background: rgba(0, 212, 170, 0.1);
+      background: rgba(0, 212, 170, 0.05);
     }
+    
     .drop-zone input { display: none; }
+    
+    .drop-zone-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    .drop-zone-text {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    
+    .drop-zone-hint {
+      font-size: 12px;
+      color: #666;
+    }
+    
     .preview-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
       gap: 10px;
-      margin-top: 20px;
+      margin-bottom: 20px;
     }
+    
     .preview-item {
       position: relative;
       aspect-ratio: 1;
-      border-radius: 6px;
+      border-radius: 8px;
       overflow: hidden;
+      background: rgba(0,0,0,0.3);
     }
+    
     .preview-item img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+    
     .preview-item .remove {
       position: absolute;
       top: 4px;
       right: 4px;
-      background: rgba(255,0,0,0.8);
+      background: rgba(255, 59, 48, 0.9);
       color: white;
       border: none;
       border-radius: 50%;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    button.upload {
-      margin-top: 20px;
+    
+    .preview-item .remove:hover {
+      background: #ff3b30;
+    }
+    
+    .upload-btn {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       background: #00d4aa;
       color: #000;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
-    button.upload:hover { background: #00b894; }
-    button.upload:disabled {
-      background: #444;
-      color: #888;
+    
+    .upload-btn:hover:not(:disabled) {
+      background: #00b894;
+      transform: translateY(-1px);
+    }
+    
+    .upload-btn:disabled {
+      background: #333;
+      color: #666;
       cursor: not-allowed;
+      transform: none;
     }
+    
     .status {
       margin-top: 20px;
-      padding: 15px;
-      border-radius: 6px;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
       display: none;
     }
-    .status.info { display: block; background: #1e3a5f; }
-    .status.success { display: block; background: #1e5f3a; }
-    .status.error { display: block; background: #5f1e1e; }
-    .log {
-      margin-top: 20px;
-      padding: 15px;
-      background: #0d0d1a;
-      border-radius: 6px;
-      font-family: monospace;
+    
+    .status.info {
+      display: block;
+      background: rgba(0, 122, 255, 0.2);
+      border: 1px solid rgba(0, 122, 255, 0.3);
+    }
+    
+    .status.success {
+      display: block;
+      background: rgba(0, 212, 170, 0.2);
+      border: 1px solid rgba(0, 212, 170, 0.3);
+    }
+    
+    .status.error {
+      display: block;
+      background: rgba(255, 59, 48, 0.2);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+      display: none;
+    }
+    
+    .progress-bar.visible {
+      display: block;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #00d4aa;
+      border-radius: 2px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+    
+    .image-count {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 16px;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 30px;
       font-size: 12px;
-      max-height: 200px;
-      overflow-y: auto;
-      display: none;
+      color: #555;
     }
-    .log.visible { display: block; }
-    .log-entry { margin: 4px 0; }
-    .log-entry.success { color: #00d4aa; }
-    .log-entry.error { color: #ff6b6b; }
   </style>
 </head>
 <body>
-  <h1>FCA Photo Upload Test</h1>
-  <p class="subtitle">Batch upload test for photo repository</p>
-
-  <label for="webhook">Webhook URL</label>
-  <input type="text" id="webhook" placeholder="https://your-n8n-instance.com/webhook/..." value="https://n8n.fiorsaoirse.com/webhook/photo-upload">
-
-  <label for="email">Your Email</label>
-  <input type="text" id="email" placeholder="e.g., studio@example.com">
-
-  <div class="drop-zone" id="dropZone">
-    <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp">
-    <p>📷 Drop images here or click to select</p>
-    <p style="font-size: 12px; color: #666;">Max 50 images • JPG, PNG, WebP</p>
+  <div class="container">
+    <div class="header">
+      <h1>📸 Photo Upload</h1>
+      <p>Upload your studio photos for AI-powered content creation</p>
+    </div>
+    
+    <div class="card">
+      <label for="email">Your Email</label>
+      <input type="email" id="email" placeholder="studio@example.com">
+      
+      <label>Select Photos</label>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp">
+        <div class="drop-zone-icon">📷</div>
+        <div class="drop-zone-text">Drop images here or click to select</div>
+        <div class="drop-zone-hint">Up to 50 images • JPG, PNG, WebP</div>
+      </div>
+      
+      <div class="preview-grid" id="previewGrid"></div>
+      
+      <div class="image-count" id="imageCount"></div>
+      
+      <button class="upload-btn" id="uploadBtn" disabled>Select Images to Upload</button>
+      
+      <div class="status" id="status"></div>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      Images are automatically tagged using AI and stored securely in your photo library.
+    </div>
   </div>
 
-  <div class="preview-grid" id="previewGrid"></div>
-
-  <button class="upload" id="uploadBtn" disabled>Upload 0 Images</button>
-
-  <div class="status" id="status"></div>
-  <div class="log" id="log"></div>
-
   <script>
+    const WEBHOOK_URL = 'https://n8n.fiorsaoirse.com/webhook/photo-upload';
+    
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const previewGrid = document.getElementById('previewGrid');
     const uploadBtn = document.getElementById('uploadBtn');
     const statusEl = document.getElementById('status');
-    const logEl = document.getElementById('log');
+    const imageCount = document.getElementById('imageCount');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
 
     let selectedFiles = [];
 
     // Drop zone events
     dropZone.addEventListener('click', () => fileInput.click());
+    
     dropZone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropZone.classList.add('dragover');
     });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+    
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('dragover');
       handleFiles(e.dataTransfer.files);
     });
+    
     fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
     function handleFiles(files) {
-      const newFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+      const newFiles = Array.from(files).filter(f => 
+        f.type.startsWith('image/') && f.size < 10 * 1024 * 1024
+      );
+      
       if (selectedFiles.length + newFiles.length > 50) {
-        alert('Maximum 50 images allowed');
+        setStatus('Maximum 50 images allowed per batch', 'error');
         return;
       }
+      
       selectedFiles = [...selectedFiles, ...newFiles];
       renderPreviews();
       updateButton();
@@ -185,8 +331,9 @@
         
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove';
-        removeBtn.textContent = '×';
-        removeBtn.onclick = () => {
+        removeBtn.innerHTML = '×';
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
           selectedFiles.splice(index, 1);
           renderPreviews();
           updateButton();
@@ -196,26 +343,33 @@
         div.appendChild(removeBtn);
         previewGrid.appendChild(div);
       });
+      
+      if (selectedFiles.length > 0) {
+        imageCount.textContent = `${selectedFiles.length} image${selectedFiles.length !== 1 ? 's' : ''} selected`;
+      } else {
+        imageCount.textContent = '';
+      }
     }
 
     function updateButton() {
       const count = selectedFiles.length;
-      uploadBtn.textContent = `Upload ${count} Image${count !== 1 ? 's' : ''}`;
-      uploadBtn.disabled = count === 0;
-    }
-
-    function log(message, type = 'info') {
-      logEl.classList.add('visible');
-      const entry = document.createElement('div');
-      entry.className = `log-entry ${type}`;
-      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-      logEl.appendChild(entry);
-      logEl.scrollTop = logEl.scrollHeight;
+      if (count === 0) {
+        uploadBtn.textContent = 'Select Images to Upload';
+        uploadBtn.disabled = true;
+      } else {
+        uploadBtn.textContent = `Upload ${count} Image${count !== 1 ? 's' : ''}`;
+        uploadBtn.disabled = false;
+      }
     }
 
     function setStatus(message, type) {
       statusEl.textContent = message;
       statusEl.className = `status ${type}`;
+    }
+
+    function setProgress(percent) {
+      progressBar.classList.add('visible');
+      progressFill.style.width = `${percent}%`;
     }
 
     async function fileToBase64(file) {
@@ -228,30 +382,29 @@
     }
 
     uploadBtn.addEventListener('click', async () => {
-      const webhookUrl = document.getElementById('webhook').value.trim();
       const email = document.getElementById('email').value.trim();
 
-      if (!webhookUrl) {
-        alert('Please enter your webhook URL');
-        return;
-      }
       if (!email) {
-        alert('Please enter your email');
+        setStatus('Please enter your email address', 'error');
         return;
       }
+      
+      if (!email.includes('@')) {
+        setStatus('Please enter a valid email address', 'error');
+        return;
+      }
+
       if (selectedFiles.length === 0) {
-        alert('Please select at least one image');
+        setStatus('Please select at least one image', 'error');
         return;
       }
 
       uploadBtn.disabled = true;
-      logEl.innerHTML = '';
-      setStatus(`Processing ${selectedFiles.length} images...`, 'info');
-      log(`Starting upload of ${selectedFiles.length} images`);
+      uploadBtn.textContent = 'Processing...';
+      setStatus(`Converting ${selectedFiles.length} images...`, 'info');
+      setProgress(0);
 
       try {
-        // Convert all files to base64
-        log('Converting images to base64...');
         const images = [];
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
@@ -260,38 +413,44 @@
             base64: base64,
             filename: file.name
           });
-          log(`Converted: ${file.name}`, 'success');
+          setProgress(Math.round(((i + 1) / selectedFiles.length) * 50));
         }
 
-        // Send to webhook
-        log(`Sending to webhook...`);
-        const payload = {
-          email: email,
-          images: images
-        };
+        setStatus('Uploading to server...', 'info');
+        setProgress(60);
 
-        const response = await fetch(webhookUrl, {
+        const response = await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            email: email,
+            images: images
+          })
         });
 
+        setProgress(90);
         const result = await response.json();
-        
+
         if (response.ok) {
-          setStatus(`Success! ${result.message || 'Images uploaded'}`, 'success');
-          log(`Upload complete: ${JSON.stringify(result)}`, 'success');
+          setProgress(100);
+          setStatus(`✓ ${selectedFiles.length} image${selectedFiles.length !== 1 ? 's' : ''} uploaded and auto-tagged successfully!`, 'success');
+          selectedFiles = [];
+          renderPreviews();
+          updateButton();
         } else {
           throw new Error(result.message || 'Upload failed');
         }
 
       } catch (error) {
         setStatus(`Error: ${error.message}`, 'error');
-        log(`Error: ${error.message}`, 'error');
+        uploadBtn.disabled = false;
+        updateButton();
       }
 
-      uploadBtn.disabled = false;
-      updateButton();
+      setTimeout(() => {
+        progressBar.classList.remove('visible');
+        progressFill.style.width = '0%';
+      }, 2000);
     });
   </script>
 </body>
