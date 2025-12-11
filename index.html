@@ -1,857 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amazon Product Image Editor</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #0d1117 100%);
-            min-height: 100vh;
-            color: #e6edf3;
-            padding: 40px 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 48px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 12px;
-        }
-
-        .subtitle {
-            color: #8b949e;
-            font-size: 1.1rem;
-        }
-
-        .editor-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-        }
-
-        @media (max-width: 1000px) {
-            .editor-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background: rgba(22, 27, 34, 0.8);
-            border: 1px solid #30363d;
-            border-radius: 16px;
-            padding: 28px;
-            backdrop-filter: blur(10px);
-        }
-
-        .panel-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #e6edf3;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .panel-title::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: linear-gradient(180deg, #58a6ff, #a371f7);
-            border-radius: 2px;
-        }
-
-        /* Upload Areas */
-        .upload-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .upload-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .upload-container {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .upload-label {
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #e6edf3;
-            font-size: 0.95rem;
-        }
-
-        .upload-label .optional {
-            color: #6e7681;
-            font-weight: 400;
-            font-size: 0.85rem;
-        }
-
-        .upload-area {
-            border: 2px dashed #30363d;
-            border-radius: 12px;
-            padding: 32px 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(13, 17, 23, 0.5);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 200px;
-        }
-
-        .upload-area:hover {
-            border-color: #58a6ff;
-            background: rgba(88, 166, 255, 0.05);
-        }
-
-        .upload-area.reference:hover {
-            border-color: #a371f7;
-            background: rgba(163, 113, 247, 0.05);
-        }
-
-        .upload-area.has-image {
-            padding: 12px;
-        }
-
-        .upload-icon {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 12px;
-            opacity: 0.6;
-        }
-
-        .upload-area.reference .upload-icon {
-            color: #a371f7;
-        }
-
-        .upload-text {
-            color: #8b949e;
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-        }
-
-        .upload-hint {
-            color: #6e7681;
-            font-size: 0.8rem;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .preview-image {
-            max-width: 100%;
-            max-height: 180px;
-            border-radius: 8px;
-            display: none;
-            object-fit: contain;
-        }
-
-        .preview-image.visible {
-            display: block;
-        }
-
-        .clear-btn {
-            margin-top: 8px;
-            padding: 4px 12px;
-            background: rgba(248, 81, 73, 0.1);
-            border: 1px solid rgba(248, 81, 73, 0.3);
-            border-radius: 6px;
-            color: #f85149;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: none;
-        }
-
-        .clear-btn.visible {
-            display: inline-block;
-        }
-
-        .clear-btn:hover {
-            background: rgba(248, 81, 73, 0.2);
-        }
-
-        /* Form Controls */
-        .form-group {
-            margin-top: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #e6edf3;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 14px 16px;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 10px;
-            color: #e6edf3;
-            font-family: inherit;
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 100px;
-            transition: border-color 0.2s ease;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #58a6ff;
-        }
-
-        textarea::placeholder {
-            color: #6e7681;
-        }
-
-        .suggestion-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .chip {
-            padding: 6px 12px;
-            background: rgba(88, 166, 255, 0.1);
-            border: 1px solid rgba(88, 166, 255, 0.3);
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: #58a6ff;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .chip:hover {
-            background: rgba(88, 166, 255, 0.2);
-            border-color: #58a6ff;
-        }
-
-        .chip.reference-chip {
-            background: rgba(163, 113, 247, 0.1);
-            border-color: rgba(163, 113, 247, 0.3);
-            color: #a371f7;
-        }
-
-        .chip.reference-chip:hover {
-            background: rgba(163, 113, 247, 0.2);
-            border-color: #a371f7;
-        }
-
-        /* Submit Button */
-        .submit-btn {
-            width: 100%;
-            padding: 16px 24px;
-            margin-top: 20px;
-            background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-family: inherit;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .submit-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(35, 134, 54, 0.4);
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Loading State */
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            display: none;
-        }
-
-        .submit-btn.loading .spinner {
-            display: block;
-        }
-
-        .submit-btn.loading .btn-text {
-            display: none;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Result Panel */
-        .result-area {
-            min-height: 300px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .result-placeholder {
-            text-align: center;
-            color: #6e7681;
-        }
-
-        .result-placeholder svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 16px;
-            opacity: 0.4;
-        }
-
-        .result-image {
-            max-width: 100%;
-            max-height: 500px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            display: none;
-        }
-
-        .result-image.visible {
-            display: block;
-        }
-
-        .result-actions {
-            display: none;
-            gap: 12px;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .result-actions.visible {
-            display: flex;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn.primary {
-            background: #58a6ff;
-            border: none;
-            color: #0d1117;
-        }
-
-        .action-btn.primary:hover {
-            background: #79b8ff;
-        }
-
-        .action-btn.secondary {
-            background: transparent;
-            border: 1px solid #30363d;
-            color: #e6edf3;
-        }
-
-        .action-btn.secondary:hover {
-            border-color: #58a6ff;
-            color: #58a6ff;
-        }
-
-        /* Error State */
-        .error-message {
-            background: rgba(248, 81, 73, 0.1);
-            border: 1px solid rgba(248, 81, 73, 0.4);
-            border-radius: 8px;
-            padding: 16px;
-            color: #f85149;
-            margin-top: 16px;
-            display: none;
-        }
-
-        .error-message.visible {
-            display: block;
-        }
-
-        /* Status Indicator */
-        .status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            background: rgba(88, 166, 255, 0.1);
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            color: #58a6ff;
-        }
-
-        .status.hidden {
-            display: none;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #58a6ff;
-            border-radius: 50%;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        /* Mode indicator */
-        .mode-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            margin-left: auto;
-        }
-
-        .mode-badge.single {
-            background: rgba(88, 166, 255, 0.15);
-            color: #58a6ff;
-        }
-
-        .mode-badge.reference {
-            background: rgba(163, 113, 247, 0.15);
-            color: #a371f7;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FCA Photo Upload Test</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #eee;
+    }
+    h1 { color: #00d4aa; margin-bottom: 10px; }
+    p.subtitle { color: #888; margin-top: 0; }
+    label { display: block; margin-top: 20px; font-weight: 600; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #252540;
+      color: #fff;
+      font-size: 14px;
+    }
+    .drop-zone {
+      margin-top: 20px;
+      padding: 40px;
+      border: 2px dashed #444;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: #00d4aa;
+      background: rgba(0, 212, 170, 0.1);
+    }
+    .drop-zone input { display: none; }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .preview-item .remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(255,0,0,0.8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    button.upload {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      background: #00d4aa;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button.upload:hover { background: #00b894; }
+    button.upload:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 6px;
+      display: none;
+    }
+    .status.info { display: block; background: #1e3a5f; }
+    .status.success { display: block; background: #1e5f3a; }
+    .status.error { display: block; background: #5f1e1e; }
+    .log {
+      margin-top: 20px;
+      padding: 15px;
+      background: #0d0d1a;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+    .log.visible { display: block; }
+    .log-entry { margin: 4px 0; }
+    .log-entry.success { color: #00d4aa; }
+    .log-entry.error { color: #ff6b6b; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Amazon Product Image Editor</h1>
-            <p class="subtitle">Upload your product photo, optionally add a reference image to emulate, and describe your edits</p>
-        </header>
+  <h1>FCA Photo Upload Test</h1>
+  <p class="subtitle">Batch upload test for photo repository</p>
 
-        <div class="editor-grid">
-            <!-- Input Panel -->
-            <div class="panel">
-                <div class="panel-title">
-                    Upload Images
-                    <span class="mode-badge single" id="modeBadge">Standard Mode</span>
-                </div>
-                
-                <div class="upload-row">
-                    <!-- Product Image Upload -->
-                    <div class="upload-container">
-                        <div class="upload-label">Your Product Image</div>
-                        <div class="upload-area" id="productUploadArea">
-                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <p class="upload-text">Drop product image here</p>
-                            <p class="upload-hint">Required</p>
-                            <img class="preview-image" id="productPreview" alt="Product Preview">
-                            <button class="clear-btn" id="clearProduct">Remove</button>
-                        </div>
-                        <input type="file" class="file-input" id="productInput" accept="image/jpeg,image/png,image/webp">
-                    </div>
+  <label for="webhook">Webhook URL</label>
+  <input type="text" id="webhook" placeholder="https://your-n8n-instance.com/webhook/..." value="https://n8n.fiorsaoirse.com/webhook/photo-upload">
 
-                    <!-- Reference Image Upload -->
-                    <div class="upload-container">
-                        <div class="upload-label">Reference Image <span class="optional">(optional)</span></div>
-                        <div class="upload-area reference" id="referenceUploadArea">
-                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/>
-                                <path d="M9 9l3 3m0 0l3-3m-3 3V6"/>
-                                <path d="M9 15h6"/>
-                            </svg>
-                            <p class="upload-text">Drop reference image here</p>
-                            <p class="upload-hint">Image style to emulate</p>
-                            <img class="preview-image" id="referencePreview" alt="Reference Preview">
-                            <button class="clear-btn" id="clearReference">Remove</button>
-                        </div>
-                        <input type="file" class="file-input" id="referenceInput" accept="image/jpeg,image/png,image/webp">
-                    </div>
-                </div>
+  <label for="email">Your Email</label>
+  <input type="text" id="email" placeholder="e.g., studio@example.com">
 
-                <div class="form-group">
-                    <label for="prompt">What would you like to do?</label>
-                    <textarea 
-                        id="prompt" 
-                        placeholder="Example: Add a fresh sandwich inside the container..."
-                    ></textarea>
-                    <div class="suggestion-chips">
-                        <span class="chip" data-prompt="Add appetizing food inside the container that looks fresh and ready to eat">Add food</span>
-                        <span class="chip" data-prompt="Place the product on a clean kitchen countertop with soft natural lighting">Kitchen scene</span>
-                        <span class="chip" data-prompt="Add steam rising from the product to show it's hot and fresh">Add steam</span>
-                        <span class="chip reference-chip" data-prompt="Place my product into a scene matching the style, lighting, and composition of the reference image. Keep my product exactly as shown but recreate the environment around it.">Match reference style</span>
-                    </div>
-                </div>
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp">
+    <p>📷 Drop images here or click to select</p>
+    <p style="font-size: 12px; color: #666;">Max 50 images • JPG, PNG, WebP</p>
+  </div>
 
-                <button class="submit-btn" id="submitBtn" disabled>
-                    <span class="btn-text">Generate Enhanced Image</span>
-                    <div class="spinner"></div>
-                </button>
+  <div class="preview-grid" id="previewGrid"></div>
 
-                <div class="error-message" id="errorMessage"></div>
-            </div>
+  <button class="upload" id="uploadBtn" disabled>Upload 0 Images</button>
 
-            <!-- Result Panel -->
-            <div class="panel">
-                <div class="panel-title">Enhanced Result</div>
-                
-                <div class="status hidden" id="status">
-                    <div class="status-dot"></div>
-                    <span id="statusText">Processing your image...</span>
-                </div>
+  <div class="status" id="status"></div>
+  <div class="log" id="log"></div>
 
-                <div class="result-area">
-                    <div class="result-placeholder" id="resultPlaceholder">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                            <path d="M21 15l-5-5L5 21"/>
-                        </svg>
-                        <p>Your enhanced image will appear here</p>
-                    </div>
-                    <img class="result-image" id="resultImage" alt="Enhanced Result">
-                    <div class="result-actions" id="resultActions">
-                        <button class="action-btn secondary" id="retryBtn">Try Different Prompt</button>
-                        <button class="action-btn primary" id="downloadBtn">Download Image</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewGrid = document.getElementById('previewGrid');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
 
-    <script>
-        // Configuration
-        const WEBHOOK_URL = 'https://n8n.fiorsaoirse.com/webhook/image-edit';
+    let selectedFiles = [];
 
-        // DOM Elements
-        const productUploadArea = document.getElementById('productUploadArea');
-        const referenceUploadArea = document.getElementById('referenceUploadArea');
-        const productInput = document.getElementById('productInput');
-        const referenceInput = document.getElementById('referenceInput');
-        const productPreview = document.getElementById('productPreview');
-        const referencePreview = document.getElementById('referencePreview');
-        const clearProduct = document.getElementById('clearProduct');
-        const clearReference = document.getElementById('clearReference');
-        const promptTextarea = document.getElementById('prompt');
-        const submitBtn = document.getElementById('submitBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        const status = document.getElementById('status');
-        const statusText = document.getElementById('statusText');
-        const resultPlaceholder = document.getElementById('resultPlaceholder');
-        const resultImage = document.getElementById('resultImage');
-        const resultActions = document.getElementById('resultActions');
-        const retryBtn = document.getElementById('retryBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const chips = document.querySelectorAll('.chip');
-        const modeBadge = document.getElementById('modeBadge');
+    // Drop zone events
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
-        // State
-        let productImageBase64 = null;
-        let productMimeType = null;
-        let referenceImageBase64 = null;
-        let referenceMimeType = null;
+    function handleFiles(files) {
+      const newFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+      if (selectedFiles.length + newFiles.length > 50) {
+        alert('Maximum 50 images allowed');
+        return;
+      }
+      selectedFiles = [...selectedFiles, ...newFiles];
+      renderPreviews();
+      updateButton();
+    }
 
-        // File Upload Handling - Product
-        productUploadArea.addEventListener('click', (e) => {
-            if (e.target !== clearProduct) productInput.click();
-        });
+    function renderPreviews() {
+      previewGrid.innerHTML = '';
+      selectedFiles.forEach((file, index) => {
+        const div = document.createElement('div');
+        div.className = 'preview-item';
         
-        productUploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            productUploadArea.style.borderColor = '#58a6ff';
-        });
-
-        productUploadArea.addEventListener('dragleave', () => {
-            productUploadArea.style.borderColor = '#30363d';
-        });
-
-        productUploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            productUploadArea.style.borderColor = '#30363d';
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                handleProductUpload(file);
-            }
-        });
-
-        productInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) handleProductUpload(file);
-        });
-
-        // File Upload Handling - Reference
-        referenceUploadArea.addEventListener('click', (e) => {
-            if (e.target !== clearReference) referenceInput.click();
-        });
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
         
-        referenceUploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            referenceUploadArea.style.borderColor = '#a371f7';
-        });
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove';
+        removeBtn.textContent = '×';
+        removeBtn.onclick = () => {
+          selectedFiles.splice(index, 1);
+          renderPreviews();
+          updateButton();
+        };
+        
+        div.appendChild(img);
+        div.appendChild(removeBtn);
+        previewGrid.appendChild(div);
+      });
+    }
 
-        referenceUploadArea.addEventListener('dragleave', () => {
-            referenceUploadArea.style.borderColor = '#30363d';
-        });
+    function updateButton() {
+      const count = selectedFiles.length;
+      uploadBtn.textContent = `Upload ${count} Image${count !== 1 ? 's' : ''}`;
+      uploadBtn.disabled = count === 0;
+    }
 
-        referenceUploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            referenceUploadArea.style.borderColor = '#30363d';
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                handleReferenceUpload(file);
-            }
-        });
+    function log(message, type = 'info') {
+      logEl.classList.add('visible');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
 
-        referenceInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) handleReferenceUpload(file);
-        });
+    function setStatus(message, type) {
+      statusEl.textContent = message;
+      statusEl.className = `status ${type}`;
+    }
 
-        function handleProductUpload(file) {
-            productMimeType = file.type;
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const base64Full = e.target.result;
-                productImageBase64 = base64Full.split(',')[1];
-                
-                productPreview.src = base64Full;
-                productPreview.classList.add('visible');
-                productUploadArea.classList.add('has-image');
-                clearProduct.classList.add('visible');
-                
-                productUploadArea.querySelector('.upload-icon').style.display = 'none';
-                productUploadArea.querySelector('.upload-text').style.display = 'none';
-                productUploadArea.querySelector('.upload-hint').style.display = 'none';
-                
-                updateUI();
-            };
-            reader.readAsDataURL(file);
+    async function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    uploadBtn.addEventListener('click', async () => {
+      const webhookUrl = document.getElementById('webhook').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!webhookUrl) {
+        alert('Please enter your webhook URL');
+        return;
+      }
+      if (!email) {
+        alert('Please enter your email');
+        return;
+      }
+      if (selectedFiles.length === 0) {
+        alert('Please select at least one image');
+        return;
+      }
+
+      uploadBtn.disabled = true;
+      logEl.innerHTML = '';
+      setStatus(`Processing ${selectedFiles.length} images...`, 'info');
+      log(`Starting upload of ${selectedFiles.length} images`);
+
+      try {
+        // Convert all files to base64
+        log('Converting images to base64...');
+        const images = [];
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const file = selectedFiles[i];
+          const base64 = await fileToBase64(file);
+          images.push({
+            base64: base64,
+            filename: file.name
+          });
+          log(`Converted: ${file.name}`, 'success');
         }
 
-        function handleReferenceUpload(file) {
-            referenceMimeType = file.type;
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const base64Full = e.target.result;
-                referenceImageBase64 = base64Full.split(',')[1];
-                
-                referencePreview.src = base64Full;
-                referencePreview.classList.add('visible');
-                referenceUploadArea.classList.add('has-image');
-                clearReference.classList.add('visible');
-                
-                referenceUploadArea.querySelector('.upload-icon').style.display = 'none';
-                referenceUploadArea.querySelector('.upload-text').style.display = 'none';
-                referenceUploadArea.querySelector('.upload-hint').style.display = 'none';
-                
-                updateUI();
-            };
-            reader.readAsDataURL(file);
+        // Send to webhook
+        log(`Sending to webhook...`);
+        const payload = {
+          email: email,
+          images: images
+        };
+
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          setStatus(`Success! ${result.message || 'Images uploaded'}`, 'success');
+          log(`Upload complete: ${JSON.stringify(result)}`, 'success');
+        } else {
+          throw new Error(result.message || 'Upload failed');
         }
 
-        // Clear buttons
-        clearProduct.addEventListener('click', (e) => {
-            e.stopPropagation();
-            productImageBase64 = null;
-            productMimeType = null;
-            productPreview.classList.remove('visible');
-            productUploadArea.classList.remove('has-image');
-            clearProduct.classList.remove('visible');
-            productInput.value = '';
-            
-            productUploadArea.querySelector('.upload-icon').style.display = '';
-            productUploadArea.querySelector('.upload-text').style.display = '';
-            productUploadArea.querySelector('.upload-hint').style.display = '';
-            
-            updateUI();
-        });
+      } catch (error) {
+        setStatus(`Error: ${error.message}`, 'error');
+        log(`Error: ${error.message}`, 'error');
+      }
 
-        clearReference.addEventListener('click', (e) => {
-            e.stopPropagation();
-            referenceImageBase64 = null;
-            referenceMimeType = null;
-            referencePreview.classList.remove('visible');
-            referenceUploadArea.classList.remove('has-image');
-            clearReference.classList.remove('visible');
-            referenceInput.value = '';
-            
-            referenceUploadArea.querySelector('.upload-icon').style.display = '';
-            referenceUploadArea.querySelector('.upload-text').style.display = '';
-            referenceUploadArea.querySelector('.upload-hint').style.display = '';
-            
-            updateUI();
-        });
-
-        // Prompt Chips
-        chips.forEach(chip => {
-            chip.addEventListener('click', () => {
-                promptTextarea.value = chip.dataset.prompt;
-                updateUI();
-            });
-        });
-
-        promptTextarea.addEventListener('input', updateUI);
-
-        function updateUI() {
-            // Update submit button
-            submitBtn.disabled = !productImageBase64 || !promptTextarea.value.trim();
-            
-            // Update mode badge
-            if (referenceImageBase64) {
-                modeBadge.textContent = 'Reference Mode';
-                modeBadge.className = 'mode-badge reference';
-            } else {
-                modeBadge.textContent = 'Standard Mode';
-                modeBadge.className = 'mode-badge single';
-            }
-        }
-
-        // Form Submission
-        submitBtn.addEventListener('click', async () => {
-            if (!productImageBase64 || !promptTextarea.value.trim()) return;
-
-            // UI: Loading state
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-            errorMessage.classList.remove('visible');
-            status.classList.remove('hidden');
-            statusText.textContent = 'Sending to AI...';
-            resultPlaceholder.style.display = 'none';
-            resultImage.classList.remove('visible');
-            resultActions.classList.remove('visible');
-
-            try {
-                statusText.textContent = referenceImageBase64 
-                    ? 'Analyzing reference and generating...' 
-                    : 'Generating enhanced image...';
-
-                const payload = {
-                    image: productImageBase64,
-                    mimeType: productMimeType,
-                    prompt: promptTextarea.value.trim()
-                };
-
-                // Add reference image if present
-                if (referenceImageBase64) {
-                    payload.referenceImage = referenceImageBase64;
-                    payload.referenceMimeType = referenceMimeType;
-                }
-
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-
-                const data = await response.json();
-                
-                // Handle Gemini response
-                let imageData = null;
-                
-                if (data.candidates && data.candidates[0]?.content?.parts) {
-                    for (const part of data.candidates[0].content.parts) {
-                        if (part.inlineData?.data) {
-                            imageData = part.inlineData.data;
-                            break;
-                        }
-                    }
-                }
-
-                if (!imageData) {
-                    if (data.error) {
-                        throw new Error(data.error.message || 'API error');
-                    }
-                    throw new Error('No image returned from AI. Check the n8n execution logs.');
-                }
-
-                // Display result
-                resultImage.src = `data:image/jpeg;base64,${imageData}`;
-                resultImage.classList.add('visible');
-                resultActions.classList.add('visible');
-                status.classList.add('hidden');
-
-            } catch (error) {
-                console.error('Error:', error);
-                errorMessage.textContent = `Error: ${error.message}`;
-                errorMessage.classList.add('visible');
-                status.classList.add('hidden');
-                resultPlaceholder.style.display = 'block';
-            } finally {
-                submitBtn.classList.remove('loading');
-                updateUI();
-            }
-        });
-
-        // Retry with different prompt
-        retryBtn.addEventListener('click', () => {
-            promptTextarea.focus();
-            promptTextarea.select();
-        });
-
-        // Download result
-        downloadBtn.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.href = resultImage.src;
-            link.download = `enhanced-product-${Date.now()}.jpg`;
-            link.click();
-        });
-    </script>
+      uploadBtn.disabled = false;
+      updateButton();
+    });
+  </script>
 </body>
 </html>
