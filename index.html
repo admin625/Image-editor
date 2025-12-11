@@ -1,457 +1,748 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload Photos | FCA</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      min-height: 100vh;
-      padding: 40px 20px;
-      color: #fff;
-    }
-    
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    
-    .header h1 {
-      font-size: 28px;
-      margin-bottom: 8px;
-      color: #00d4aa;
-    }
-    
-    .header p {
-      color: #888;
-      font-size: 14px;
-    }
-    
-    .card {
-      background: rgba(255,255,255,0.05);
-      border-radius: 16px;
-      padding: 30px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-    
-    input[type="email"] {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-      background: rgba(0,0,0,0.3);
-      color: #fff;
-      font-size: 16px;
-      margin-bottom: 24px;
-      transition: border-color 0.2s;
-    }
-    
-    input[type="email"]:focus {
-      outline: none;
-      border-color: #00d4aa;
-    }
-    
-    input[type="email"]::placeholder {
-      color: #666;
-    }
-    
-    .drop-zone {
-      border: 2px dashed rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 40px 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 20px;
-    }
-    
-    .drop-zone:hover,
-    .drop-zone.dragover {
-      border-color: #00d4aa;
-      background: rgba(0, 212, 170, 0.05);
-    }
-    
-    .drop-zone input { display: none; }
-    
-    .drop-zone-icon {
-      font-size: 48px;
-      margin-bottom: 12px;
-    }
-    
-    .drop-zone-text {
-      font-size: 16px;
-      margin-bottom: 4px;
-    }
-    
-    .drop-zone-hint {
-      font-size: 12px;
-      color: #666;
-    }
-    
-    .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    
-    .preview-item {
-      position: relative;
-      aspect-ratio: 1;
-      border-radius: 8px;
-      overflow: hidden;
-      background: rgba(0,0,0,0.3);
-    }
-    
-    .preview-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .preview-item .remove {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      background: rgba(255, 59, 48, 0.9);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .preview-item .remove:hover {
-      background: #ff3b30;
-    }
-    
-    .upload-btn {
-      width: 100%;
-      padding: 16px;
-      background: #00d4aa;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .upload-btn:hover:not(:disabled) {
-      background: #00b894;
-      transform: translateY(-1px);
-    }
-    
-    .upload-btn:disabled {
-      background: #333;
-      color: #666;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
-    .status {
-      margin-top: 20px;
-      padding: 16px;
-      border-radius: 8px;
-      text-align: center;
-      display: none;
-    }
-    
-    .status.info {
-      display: block;
-      background: rgba(0, 122, 255, 0.2);
-      border: 1px solid rgba(0, 122, 255, 0.3);
-    }
-    
-    .status.success {
-      display: block;
-      background: rgba(0, 212, 170, 0.2);
-      border: 1px solid rgba(0, 212, 170, 0.3);
-    }
-    
-    .status.error {
-      display: block;
-      background: rgba(255, 59, 48, 0.2);
-      border: 1px solid rgba(255, 59, 48, 0.3);
-    }
-    
-    .progress-bar {
-      width: 100%;
-      height: 4px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      margin-top: 12px;
-      overflow: hidden;
-      display: none;
-    }
-    
-    .progress-bar.visible {
-      display: block;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: #00d4aa;
-      border-radius: 2px;
-      transition: width 0.3s;
-      width: 0%;
-    }
-    
-    .image-count {
-      text-align: center;
-      font-size: 13px;
-      color: #888;
-      margin-bottom: 16px;
-    }
-    
-    .footer {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 12px;
-      color: #555;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Product Image Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #0d1117 100%);
+            min-height: 100vh;
+            color: #e6edf3;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            font-size: 1.1rem;
+        }
+
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        @media (max-width: 1000px) {
+            .editor-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 28px;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e6edf3;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .upload-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upload-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #8b949e;
+            margin-bottom: 8px;
+        }
+
+        .upload-area {
+            border: 2px dashed #30363d;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-area:hover {
+            border-color: #58a6ff;
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #58a6ff;
+            background: rgba(88, 166, 255, 0.1);
+        }
+
+        .upload-area.has-image {
+            border-style: solid;
+            border-color: #238636;
+        }
+
+        .upload-icon {
+            width: 40px;
+            height: 40px;
+            color: #8b949e;
+            margin-bottom: 12px;
+        }
+
+        .upload-text {
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            color: #6e7681;
+            font-size: 0.75rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            display: none;
+            object-fit: contain;
+        }
+
+        .preview-image.visible {
+            display: block;
+        }
+
+        .clear-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(248, 81, 73, 0.9);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .clear-btn.visible {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #e6edf3;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 14px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            color: #e6edf3;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        textarea::placeholder {
+            color: #6e7681;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .chip {
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            color: #58a6ff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            background: rgba(88, 166, 255, 0.2);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(35, 134, 54, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #21262d;
+            color: #6e7681;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn.loading {
+            background: #1f6feb;
+        }
+
+        .submit-btn .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        .submit-btn.loading .spinner {
+            display: block;
+        }
+
+        .submit-btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Result Panel */
+        .result-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            color: #6e7681;
+            text-align: center;
+        }
+
+        .result-placeholder svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .result-image {
+            width: 100%;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result-image.visible {
+            display: block;
+        }
+
+        .result-actions {
+            display: none;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .result-actions.visible {
+            display: flex;
+        }
+
+        .result-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .result-btn.primary {
+            background: #238636;
+            border: none;
+            color: white;
+        }
+
+        .result-btn.primary:hover {
+            background: #2ea043;
+        }
+
+        .result-btn.secondary {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+        }
+
+        .result-btn.secondary:hover {
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        .error-message {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            color: #f85149;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(88, 166, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #58a6ff;
+        }
+
+        .status.hidden {
+            display: none;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #58a6ff;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        .mode-badge.single {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+        }
+
+        .mode-badge.reference {
+            background: rgba(163, 113, 247, 0.15);
+            color: #a371f7;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>📸 Photo Upload</h1>
-      <p>Upload your studio photos for AI-powered content creation</p>
+    <div class="container">
+        <header>
+            <h1>Amazon Product Image Editor</h1>
+            <p class="subtitle">Upload your product photo, optionally add a reference image to emulate, and describe your edits</p>
+        </header>
+
+        <div class="editor-grid">
+            <!-- Input Panel -->
+            <div class="panel">
+                <div class="panel-title">
+                    Upload Images
+                    <span class="mode-badge single" id="modeBadge">Standard Mode</span>
+                </div>
+                
+                <div class="upload-row">
+                    <!-- Product Image Upload -->
+                    <div class="upload-container">
+                        <div class="upload-label">Your Product Image</div>
+                        <div class="upload-area" id="productUploadArea">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="upload-text">Drop product image here</p>
+                            <p class="upload-hint">Required</p>
+                            <img class="preview-image" id="productPreview" alt="Product Preview">
+                            <button class="clear-btn" id="clearProduct">Remove</button>
+                        </div>
+                        <input type="file" class="file-input" id="productInput" accept="image/jpeg,image/png,image/webp">
+                    </div>
+
+                    <!-- Reference Image Upload -->
+                    <div class="upload-container">
+                        <div class="upload-label">Reference Image (Optional)</div>
+                        <div class="upload-area" id="referenceUploadArea">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="upload-text">Drop reference image here</p>
+                            <p class="upload-hint">Style to emulate</p>
+                            <img class="preview-image" id="referencePreview" alt="Reference Preview">
+                            <button class="clear-btn" id="clearReference">Remove</button>
+                        </div>
+                        <input type="file" class="file-input" id="referenceInput" accept="image/jpeg,image/png,image/webp">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="prompt">What would you like to add or change?</label>
+                    <textarea 
+                        id="prompt" 
+                        placeholder="Example: Add a fresh whole wheat sandwich with turkey, lettuce, tomato, and melted Swiss cheese sitting inside the open container. Make it look appetizing and ready to eat."
+                    ></textarea>
+                    
+                    <div class="chips">
+                        <span class="chip" data-prompt="Add fresh food inside the container">Add Food</span>
+                        <span class="chip" data-prompt="Place on a clean white background">White Background</span>
+                        <span class="chip" data-prompt="Add soft studio lighting">Studio Lighting</span>
+                        <span class="chip" data-prompt="Make colors more vibrant">Enhance Colors</span>
+                        <span class="chip" data-prompt="Add lifestyle props around the product">Add Props</span>
+                    </div>
+                </div>
+
+                <button class="submit-btn" id="submitBtn" disabled>
+                    <span class="spinner"></span>
+                    <span class="btn-text">Generate Enhanced Image</span>
+                </button>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="panel">
+                <div class="panel-title">Enhanced Result</div>
+                
+                <div class="error-message" id="errorMessage"></div>
+                
+                <div class="status hidden" id="status">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Processing your image...</span>
+                </div>
+
+                <div class="result-placeholder" id="resultPlaceholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <path d="M21 15l-5-5L5 21"/>
+                    </svg>
+                    <p>Your enhanced image will appear here</p>
+                </div>
+
+                <img class="result-image" id="resultImage" alt="Enhanced Result">
+
+                <div class="result-actions" id="resultActions">
+                    <button class="result-btn primary" id="downloadBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        Download
+                    </button>
+                    <button class="result-btn secondary" id="retryBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 4v6h6M23 20v-6h-6"/>
+                            <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
+                        </svg>
+                        Try Different Prompt
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div class="card">
-      <label for="email">Your Email</label>
-      <input type="email" id="email" placeholder="studio@example.com">
-      
-      <label>Select Photos</label>
-      <div class="drop-zone" id="dropZone">
-        <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp">
-        <div class="drop-zone-icon">📷</div>
-        <div class="drop-zone-text">Drop images here or click to select</div>
-        <div class="drop-zone-hint">Up to 50 images • JPG, PNG, WebP</div>
-      </div>
-      
-      <div class="preview-grid" id="previewGrid"></div>
-      
-      <div class="image-count" id="imageCount"></div>
-      
-      <button class="upload-btn" id="uploadBtn" disabled>Select Images to Upload</button>
-      
-      <div class="status" id="status"></div>
-      <div class="progress-bar" id="progressBar">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-    </div>
-    
-    <div class="footer">
-      Images are automatically tagged using AI and stored securely in your photo library.
-    </div>
-  </div>
 
-  <script>
-    const WEBHOOK_URL = 'https://n8n.fiorsaoirse.com/webhook/photo-upload';
-    
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-    const previewGrid = document.getElementById('previewGrid');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const statusEl = document.getElementById('status');
-    const imageCount = document.getElementById('imageCount');
-    const progressBar = document.getElementById('progressBar');
-    const progressFill = document.getElementById('progressFill');
+    <script>
+        const WEBHOOK_URL = 'https://n8n.fiorsaoirse.com/webhook/amazon-image-editor';
 
-    let selectedFiles = [];
+        // Elements
+        const productUploadArea = document.getElementById('productUploadArea');
+        const productInput = document.getElementById('productInput');
+        const productPreview = document.getElementById('productPreview');
+        const clearProduct = document.getElementById('clearProduct');
 
-    // Drop zone events
-    dropZone.addEventListener('click', () => fileInput.click());
-    
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
-    
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
-    
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      handleFiles(e.dataTransfer.files);
-    });
-    
-    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        const referenceUploadArea = document.getElementById('referenceUploadArea');
+        const referenceInput = document.getElementById('referenceInput');
+        const referencePreview = document.getElementById('referencePreview');
+        const clearReference = document.getElementById('clearReference');
 
-    function handleFiles(files) {
-      const newFiles = Array.from(files).filter(f => 
-        f.type.startsWith('image/') && f.size < 10 * 1024 * 1024
-      );
-      
-      if (selectedFiles.length + newFiles.length > 50) {
-        setStatus('Maximum 50 images allowed per batch', 'error');
-        return;
-      }
-      
-      selectedFiles = [...selectedFiles, ...newFiles];
-      renderPreviews();
-      updateButton();
-    }
+        const modeBadge = document.getElementById('modeBadge');
+        const promptTextarea = document.getElementById('prompt');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const resultImage = document.getElementById('resultImage');
+        const resultActions = document.getElementById('resultActions');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const chips = document.querySelectorAll('.chip');
 
-    function renderPreviews() {
-      previewGrid.innerHTML = '';
-      selectedFiles.forEach((file, index) => {
-        const div = document.createElement('div');
-        div.className = 'preview-item';
-        
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove';
-        removeBtn.innerHTML = '×';
-        removeBtn.onclick = (e) => {
-          e.stopPropagation();
-          selectedFiles.splice(index, 1);
-          renderPreviews();
-          updateButton();
-        };
-        
-        div.appendChild(img);
-        div.appendChild(removeBtn);
-        previewGrid.appendChild(div);
-      });
-      
-      if (selectedFiles.length > 0) {
-        imageCount.textContent = `${selectedFiles.length} image${selectedFiles.length !== 1 ? 's' : ''} selected`;
-      } else {
-        imageCount.textContent = '';
-      }
-    }
+        let productBase64 = null;
+        let referenceBase64 = null;
 
-    function updateButton() {
-      const count = selectedFiles.length;
-      if (count === 0) {
-        uploadBtn.textContent = 'Select Images to Upload';
-        uploadBtn.disabled = true;
-      } else {
-        uploadBtn.textContent = `Upload ${count} Image${count !== 1 ? 's' : ''}`;
-        uploadBtn.disabled = false;
-      }
-    }
+        // Setup upload handlers
+        function setupUploadArea(area, input, preview, clearBtn, setBase64) {
+            area.addEventListener('click', () => input.click());
+            
+            area.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                area.classList.add('dragover');
+            });
 
-    function setStatus(message, type) {
-      statusEl.textContent = message;
-      statusEl.className = `status ${type}`;
-    }
+            area.addEventListener('dragleave', () => {
+                area.classList.remove('dragover');
+            });
 
-    function setProgress(percent) {
-      progressBar.classList.add('visible');
-      progressFill.style.width = `${percent}%`;
-    }
+            area.addEventListener('drop', (e) => {
+                e.preventDefault();
+                area.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    handleFile(file, preview, clearBtn, area, setBase64);
+                }
+            });
 
-    async function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFile(file, preview, clearBtn, area, setBase64);
+                }
+            });
 
-    uploadBtn.addEventListener('click', async () => {
-      const email = document.getElementById('email').value.trim();
-
-      if (!email) {
-        setStatus('Please enter your email address', 'error');
-        return;
-      }
-      
-      if (!email.includes('@')) {
-        setStatus('Please enter a valid email address', 'error');
-        return;
-      }
-
-      if (selectedFiles.length === 0) {
-        setStatus('Please select at least one image', 'error');
-        return;
-      }
-
-      uploadBtn.disabled = true;
-      uploadBtn.textContent = 'Processing...';
-      setStatus(`Converting ${selectedFiles.length} images...`, 'info');
-      setProgress(0);
-
-      try {
-        const images = [];
-        for (let i = 0; i < selectedFiles.length; i++) {
-          const file = selectedFiles[i];
-          const base64 = await fileToBase64(file);
-          images.push({
-            base64: base64,
-            filename: file.name
-          });
-          setProgress(Math.round(((i + 1) / selectedFiles.length) * 50));
+            clearBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                preview.src = '';
+                preview.classList.remove('visible');
+                clearBtn.classList.remove('visible');
+                area.classList.remove('has-image');
+                input.value = '';
+                setBase64(null);
+                updateUI();
+            });
         }
 
-        setStatus('Uploading to server...', 'info');
-        setProgress(60);
+        function handleFile(file, preview, clearBtn, area, setBase64) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.classList.add('visible');
+                clearBtn.classList.add('visible');
+                area.classList.add('has-image');
+                
+                // Hide the upload UI elements
+                area.querySelector('.upload-icon').style.display = 'none';
+                area.querySelector('.upload-text').style.display = 'none';
+                area.querySelector('.upload-hint').style.display = 'none';
+                
+                // Extract base64 without data URL prefix
+                const base64 = e.target.result.split(',')[1];
+                setBase64(base64);
+                updateUI();
+            };
+            reader.readAsDataURL(file);
+        }
 
-        const response = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            images: images
-          })
+        setupUploadArea(productUploadArea, productInput, productPreview, clearProduct, (val) => { productBase64 = val; });
+        setupUploadArea(referenceUploadArea, referenceInput, referencePreview, clearReference, (val) => { referenceBase64 = val; });
+
+        // Chip click handlers
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const currentPrompt = promptTextarea.value.trim();
+                const chipPrompt = chip.dataset.prompt;
+                promptTextarea.value = currentPrompt 
+                    ? `${currentPrompt}. ${chipPrompt}` 
+                    : chipPrompt;
+                updateUI();
+            });
         });
 
-        setProgress(90);
-        const result = await response.json();
+        // Update UI state
+        function updateUI() {
+            const hasProduct = productBase64 !== null;
+            const hasReference = referenceBase64 !== null;
+            const hasPrompt = promptTextarea.value.trim().length > 0;
 
-        if (response.ok) {
-          setProgress(100);
-          setStatus(`✓ ${selectedFiles.length} image${selectedFiles.length !== 1 ? 's' : ''} uploaded and auto-tagged successfully!`, 'success');
-          selectedFiles = [];
-          renderPreviews();
-          updateButton();
-        } else {
-          throw new Error(result.message || 'Upload failed');
+            submitBtn.disabled = !hasProduct || !hasPrompt;
+
+            if (hasReference) {
+                modeBadge.textContent = 'Reference Mode';
+                modeBadge.className = 'mode-badge reference';
+            } else {
+                modeBadge.textContent = 'Standard Mode';
+                modeBadge.className = 'mode-badge single';
+            }
         }
 
-      } catch (error) {
-        setStatus(`Error: ${error.message}`, 'error');
-        uploadBtn.disabled = false;
-        updateButton();
-      }
+        promptTextarea.addEventListener('input', updateUI);
 
-      setTimeout(() => {
-        progressBar.classList.remove('visible');
-        progressFill.style.width = '0%';
-      }, 2000);
-    });
-  </script>
+        // Submit handler
+        submitBtn.addEventListener('click', async () => {
+            if (!productBase64 || !promptTextarea.value.trim()) return;
+
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            errorMessage.classList.remove('visible');
+            resultPlaceholder.style.display = 'none';
+            resultImage.classList.remove('visible');
+            resultActions.classList.remove('visible');
+            status.classList.remove('hidden');
+            statusText.textContent = 'Sending to AI...';
+
+            try {
+                const payload = {
+                    productImage: productBase64,
+                    prompt: promptTextarea.value.trim()
+                };
+
+                if (referenceBase64) {
+                    payload.referenceImage = referenceBase64;
+                }
+
+                statusText.textContent = 'AI is generating your image...';
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Generation failed');
+                }
+
+                const imageData = result.image || result.generatedImage || result.output;
+                
+                if (!imageData) {
+                    throw new Error('No image in response. Check the n8n execution logs.');
+                }
+
+                resultImage.src = `data:image/jpeg;base64,${imageData}`;
+                resultImage.classList.add('visible');
+                resultActions.classList.add('visible');
+                status.classList.add('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = `Error: ${error.message}`;
+                errorMessage.classList.add('visible');
+                status.classList.add('hidden');
+                resultPlaceholder.style.display = 'block';
+            } finally {
+                submitBtn.classList.remove('loading');
+                updateUI();
+            }
+        });
+
+        // Retry with different prompt
+        retryBtn.addEventListener('click', () => {
+            promptTextarea.focus();
+            promptTextarea.select();
+        });
+
+        // Download result
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = resultImage.src;
+            link.download = `enhanced-product-${Date.now()}.jpg`;
+            link.click();
+        });
+    </script>
 </body>
 </html>
