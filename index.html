@@ -23,7 +23,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -53,7 +53,7 @@
             gap: 32px;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             .editor-grid {
                 grid-template-columns: 1fr;
             }
@@ -85,15 +85,52 @@
             border-radius: 2px;
         }
 
-        /* Upload Area */
+        /* Upload Areas */
+        .upload-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .upload-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upload-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #e6edf3;
+            font-size: 0.95rem;
+        }
+
+        .upload-label .optional {
+            color: #6e7681;
+            font-weight: 400;
+            font-size: 0.85rem;
+        }
+
         .upload-area {
             border: 2px dashed #30363d;
             border-radius: 12px;
-            padding: 48px 24px;
+            padding: 32px 16px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             background: rgba(13, 17, 23, 0.5);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
         }
 
         .upload-area:hover {
@@ -101,46 +138,76 @@
             background: rgba(88, 166, 255, 0.05);
         }
 
+        .upload-area.reference:hover {
+            border-color: #a371f7;
+            background: rgba(163, 113, 247, 0.05);
+        }
+
         .upload-area.has-image {
-            padding: 16px;
+            padding: 12px;
         }
 
         .upload-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 16px;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
             opacity: 0.6;
+        }
+
+        .upload-area.reference .upload-icon {
+            color: #a371f7;
         }
 
         .upload-text {
             color: #8b949e;
-            font-size: 1rem;
-            margin-bottom: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
         }
 
         .upload-hint {
             color: #6e7681;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
-        #fileInput {
+        .file-input {
             display: none;
         }
 
         .preview-image {
             max-width: 100%;
-            max-height: 400px;
+            max-height: 180px;
             border-radius: 8px;
             display: none;
+            object-fit: contain;
         }
 
         .preview-image.visible {
             display: block;
         }
 
+        .clear-btn {
+            margin-top: 8px;
+            padding: 4px 12px;
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            border-radius: 6px;
+            color: #f85149;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .clear-btn.visible {
+            display: inline-block;
+        }
+
+        .clear-btn:hover {
+            background: rgba(248, 81, 73, 0.2);
+        }
+
         /* Form Controls */
         .form-group {
-            margin-top: 24px;
+            margin-top: 20px;
         }
 
         label {
@@ -160,7 +227,7 @@
             font-family: inherit;
             font-size: 1rem;
             resize: vertical;
-            min-height: 120px;
+            min-height: 100px;
             transition: border-color 0.2s ease;
         }
 
@@ -185,7 +252,7 @@
             background: rgba(88, 166, 255, 0.1);
             border: 1px solid rgba(88, 166, 255, 0.3);
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #58a6ff;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -196,11 +263,22 @@
             border-color: #58a6ff;
         }
 
+        .chip.reference-chip {
+            background: rgba(163, 113, 247, 0.1);
+            border-color: rgba(163, 113, 247, 0.3);
+            color: #a371f7;
+        }
+
+        .chip.reference-chip:hover {
+            background: rgba(163, 113, 247, 0.2);
+            border-color: #a371f7;
+        }
+
         /* Submit Button */
         .submit-btn {
             width: 100%;
             padding: 16px 24px;
-            margin-top: 24px;
+            margin-top: 20px;
             background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
             border: none;
             border-radius: 10px;
@@ -369,41 +447,88 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
         }
+
+        /* Mode indicator */
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        .mode-badge.single {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+        }
+
+        .mode-badge.reference {
+            background: rgba(163, 113, 247, 0.15);
+            color: #a371f7;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Amazon Product Image Editor</h1>
-            <p class="subtitle">Upload your product photo, describe what to add, get a professional listing image</p>
+            <p class="subtitle">Upload your product photo, optionally add a reference image to emulate, and describe your edits</p>
         </header>
 
         <div class="editor-grid">
             <!-- Input Panel -->
             <div class="panel">
-                <div class="panel-title">Original Product Image</div>
-                
-                <div class="upload-area" id="uploadArea">
-                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <p class="upload-text">Drop your product image here or click to browse</p>
-                    <p class="upload-hint">Supports JPG, PNG, WebP</p>
-                    <img class="preview-image" id="previewImage" alt="Preview">
+                <div class="panel-title">
+                    Upload Images
+                    <span class="mode-badge single" id="modeBadge">Standard Mode</span>
                 </div>
-                <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+                
+                <div class="upload-row">
+                    <!-- Product Image Upload -->
+                    <div class="upload-container">
+                        <div class="upload-label">Your Product Image</div>
+                        <div class="upload-area" id="productUploadArea">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="upload-text">Drop product image here</p>
+                            <p class="upload-hint">Required</p>
+                            <img class="preview-image" id="productPreview" alt="Product Preview">
+                            <button class="clear-btn" id="clearProduct">Remove</button>
+                        </div>
+                        <input type="file" class="file-input" id="productInput" accept="image/jpeg,image/png,image/webp">
+                    </div>
+
+                    <!-- Reference Image Upload -->
+                    <div class="upload-container">
+                        <div class="upload-label">Reference Image <span class="optional">(optional)</span></div>
+                        <div class="upload-area reference" id="referenceUploadArea">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/>
+                                <path d="M9 9l3 3m0 0l3-3m-3 3V6"/>
+                                <path d="M9 15h6"/>
+                            </svg>
+                            <p class="upload-text">Drop reference image here</p>
+                            <p class="upload-hint">Image style to emulate</p>
+                            <img class="preview-image" id="referencePreview" alt="Reference Preview">
+                            <button class="clear-btn" id="clearReference">Remove</button>
+                        </div>
+                        <input type="file" class="file-input" id="referenceInput" accept="image/jpeg,image/png,image/webp">
+                    </div>
+                </div>
 
                 <div class="form-group">
-                    <label for="prompt">What would you like to add?</label>
+                    <label for="prompt">What would you like to do?</label>
                     <textarea 
                         id="prompt" 
-                        placeholder="Example: Add a fresh whole wheat sandwich with turkey, lettuce, tomato, and melted Swiss cheese sitting inside the open container. Make it look appetizing and ready to eat."
+                        placeholder="Example: Add a fresh sandwich inside the container..."
                     ></textarea>
                     <div class="suggestion-chips">
-                        <span class="chip" data-prompt="Add fresh food inside the container that looks appetizing">Add food</span>
-                        <span class="chip" data-prompt="Place the product on a clean kitchen countertop with soft natural lighting">Kitchen setting</span>
+                        <span class="chip" data-prompt="Add appetizing food inside the container that looks fresh and ready to eat">Add food</span>
+                        <span class="chip" data-prompt="Place the product on a clean kitchen countertop with soft natural lighting">Kitchen scene</span>
                         <span class="chip" data-prompt="Add steam rising from the product to show it's hot and fresh">Add steam</span>
-                        <span class="chip" data-prompt="Surround the product with fresh ingredients that complement it">Fresh ingredients</span>
+                        <span class="chip reference-chip" data-prompt="Place my product into a scene matching the style, lighting, and composition of the reference image. Keep my product exactly as shown but recreate the environment around it.">Match reference style</span>
                     </div>
                 </div>
 
@@ -445,12 +570,17 @@
 
     <script>
         // Configuration
-        const WEBHOOK_URL = 'https://jmac.app.n8n.cloud/webhook/image-edit';
+        const WEBHOOK_URL = 'https://n8n.fiorsaoirse.com/webhook/image-edit';
 
         // DOM Elements
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const previewImage = document.getElementById('previewImage');
+        const productUploadArea = document.getElementById('productUploadArea');
+        const referenceUploadArea = document.getElementById('referenceUploadArea');
+        const productInput = document.getElementById('productInput');
+        const referenceInput = document.getElementById('referenceInput');
+        const productPreview = document.getElementById('productPreview');
+        const referencePreview = document.getElementById('referencePreview');
+        const clearProduct = document.getElementById('clearProduct');
+        const clearReference = document.getElementById('clearReference');
         const promptTextarea = document.getElementById('prompt');
         const submitBtn = document.getElementById('submitBtn');
         const errorMessage = document.getElementById('errorMessage');
@@ -462,80 +592,174 @@
         const retryBtn = document.getElementById('retryBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const chips = document.querySelectorAll('.chip');
+        const modeBadge = document.getElementById('modeBadge');
 
         // State
-        let currentImageBase64 = null;
-        let currentMimeType = null;
+        let productImageBase64 = null;
+        let productMimeType = null;
+        let referenceImageBase64 = null;
+        let referenceMimeType = null;
 
-        // File Upload Handling
-        uploadArea.addEventListener('click', () => fileInput.click());
+        // File Upload Handling - Product
+        productUploadArea.addEventListener('click', (e) => {
+            if (e.target !== clearProduct) productInput.click();
+        });
         
-        uploadArea.addEventListener('dragover', (e) => {
+        productUploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadArea.style.borderColor = '#58a6ff';
+            productUploadArea.style.borderColor = '#58a6ff';
         });
 
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#30363d';
+        productUploadArea.addEventListener('dragleave', () => {
+            productUploadArea.style.borderColor = '#30363d';
         });
 
-        uploadArea.addEventListener('drop', (e) => {
+        productUploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadArea.style.borderColor = '#30363d';
+            productUploadArea.style.borderColor = '#30363d';
             const file = e.dataTransfer.files[0];
             if (file && file.type.startsWith('image/')) {
-                handleImageUpload(file);
+                handleProductUpload(file);
             }
         });
 
-        fileInput.addEventListener('change', (e) => {
+        productInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (file) {
-                handleImageUpload(file);
+            if (file) handleProductUpload(file);
+        });
+
+        // File Upload Handling - Reference
+        referenceUploadArea.addEventListener('click', (e) => {
+            if (e.target !== clearReference) referenceInput.click();
+        });
+        
+        referenceUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            referenceUploadArea.style.borderColor = '#a371f7';
+        });
+
+        referenceUploadArea.addEventListener('dragleave', () => {
+            referenceUploadArea.style.borderColor = '#30363d';
+        });
+
+        referenceUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            referenceUploadArea.style.borderColor = '#30363d';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleReferenceUpload(file);
             }
         });
 
-        function handleImageUpload(file) {
-            currentMimeType = file.type;
+        referenceInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleReferenceUpload(file);
+        });
+
+        function handleProductUpload(file) {
+            productMimeType = file.type;
             
             const reader = new FileReader();
             reader.onload = (e) => {
                 const base64Full = e.target.result;
-                // Extract just the base64 data without the data URL prefix
-                currentImageBase64 = base64Full.split(',')[1];
+                productImageBase64 = base64Full.split(',')[1];
                 
-                // Show preview
-                previewImage.src = base64Full;
-                previewImage.classList.add('visible');
-                uploadArea.classList.add('has-image');
+                productPreview.src = base64Full;
+                productPreview.classList.add('visible');
+                productUploadArea.classList.add('has-image');
+                clearProduct.classList.add('visible');
                 
-                // Hide upload prompt elements
-                uploadArea.querySelector('.upload-icon').style.display = 'none';
-                uploadArea.querySelector('.upload-text').style.display = 'none';
-                uploadArea.querySelector('.upload-hint').style.display = 'none';
+                productUploadArea.querySelector('.upload-icon').style.display = 'none';
+                productUploadArea.querySelector('.upload-text').style.display = 'none';
+                productUploadArea.querySelector('.upload-hint').style.display = 'none';
                 
-                updateSubmitButton();
+                updateUI();
             };
             reader.readAsDataURL(file);
         }
+
+        function handleReferenceUpload(file) {
+            referenceMimeType = file.type;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Full = e.target.result;
+                referenceImageBase64 = base64Full.split(',')[1];
+                
+                referencePreview.src = base64Full;
+                referencePreview.classList.add('visible');
+                referenceUploadArea.classList.add('has-image');
+                clearReference.classList.add('visible');
+                
+                referenceUploadArea.querySelector('.upload-icon').style.display = 'none';
+                referenceUploadArea.querySelector('.upload-text').style.display = 'none';
+                referenceUploadArea.querySelector('.upload-hint').style.display = 'none';
+                
+                updateUI();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Clear buttons
+        clearProduct.addEventListener('click', (e) => {
+            e.stopPropagation();
+            productImageBase64 = null;
+            productMimeType = null;
+            productPreview.classList.remove('visible');
+            productUploadArea.classList.remove('has-image');
+            clearProduct.classList.remove('visible');
+            productInput.value = '';
+            
+            productUploadArea.querySelector('.upload-icon').style.display = '';
+            productUploadArea.querySelector('.upload-text').style.display = '';
+            productUploadArea.querySelector('.upload-hint').style.display = '';
+            
+            updateUI();
+        });
+
+        clearReference.addEventListener('click', (e) => {
+            e.stopPropagation();
+            referenceImageBase64 = null;
+            referenceMimeType = null;
+            referencePreview.classList.remove('visible');
+            referenceUploadArea.classList.remove('has-image');
+            clearReference.classList.remove('visible');
+            referenceInput.value = '';
+            
+            referenceUploadArea.querySelector('.upload-icon').style.display = '';
+            referenceUploadArea.querySelector('.upload-text').style.display = '';
+            referenceUploadArea.querySelector('.upload-hint').style.display = '';
+            
+            updateUI();
+        });
 
         // Prompt Chips
         chips.forEach(chip => {
             chip.addEventListener('click', () => {
                 promptTextarea.value = chip.dataset.prompt;
-                updateSubmitButton();
+                updateUI();
             });
         });
 
-        promptTextarea.addEventListener('input', updateSubmitButton);
+        promptTextarea.addEventListener('input', updateUI);
 
-        function updateSubmitButton() {
-            submitBtn.disabled = !currentImageBase64 || !promptTextarea.value.trim();
+        function updateUI() {
+            // Update submit button
+            submitBtn.disabled = !productImageBase64 || !promptTextarea.value.trim();
+            
+            // Update mode badge
+            if (referenceImageBase64) {
+                modeBadge.textContent = 'Reference Mode';
+                modeBadge.className = 'mode-badge reference';
+            } else {
+                modeBadge.textContent = 'Standard Mode';
+                modeBadge.className = 'mode-badge single';
+            }
         }
 
         // Form Submission
         submitBtn.addEventListener('click', async () => {
-            if (!currentImageBase64 || !promptTextarea.value.trim()) return;
+            if (!productImageBase64 || !promptTextarea.value.trim()) return;
 
             // UI: Loading state
             submitBtn.classList.add('loading');
@@ -548,18 +772,28 @@
             resultActions.classList.remove('visible');
 
             try {
-                statusText.textContent = 'Generating enhanced image...';
+                statusText.textContent = referenceImageBase64 
+                    ? 'Analyzing reference and generating...' 
+                    : 'Generating enhanced image...';
+
+                const payload = {
+                    image: productImageBase64,
+                    mimeType: productMimeType,
+                    prompt: promptTextarea.value.trim()
+                };
+
+                // Add reference image if present
+                if (referenceImageBase64) {
+                    payload.referenceImage = referenceImageBase64;
+                    payload.referenceMimeType = referenceMimeType;
+                }
 
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        image: currentImageBase64,
-                        mimeType: currentMimeType,
-                        prompt: promptTextarea.value.trim()
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
@@ -568,8 +802,7 @@
 
                 const data = await response.json();
                 
-                // Handle Gemini response - extract image from response
-                // The response structure from Gemini is: candidates[0].content.parts[0].inlineData.data
+                // Handle Gemini response
                 let imageData = null;
                 
                 if (data.candidates && data.candidates[0]?.content?.parts) {
@@ -582,7 +815,6 @@
                 }
 
                 if (!imageData) {
-                    // Check if error message in response
                     if (data.error) {
                         throw new Error(data.error.message || 'API error');
                     }
@@ -603,7 +835,7 @@
                 resultPlaceholder.style.display = 'block';
             } finally {
                 submitBtn.classList.remove('loading');
-                updateSubmitButton();
+                updateUI();
             }
         });
 
