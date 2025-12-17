@@ -77,11 +77,20 @@
             gap: 10px;
         }
 
+        .panel-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #58a6ff, #a371f7);
+            border-radius: 2px;
+        }
+
+        /* Upload Areas */
         .upload-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         @media (max-width: 600px) {
@@ -96,25 +105,32 @@
         }
 
         .upload-label {
-            font-size: 0.85rem;
             font-weight: 500;
-            color: #8b949e;
             margin-bottom: 8px;
+            color: #e6edf3;
+            font-size: 0.95rem;
+        }
+
+        .upload-label .optional {
+            color: #6e7681;
+            font-weight: 400;
+            font-size: 0.85rem;
         }
 
         .upload-area {
             border: 2px dashed #30363d;
             border-radius: 12px;
-            padding: 24px;
+            padding: 32px 16px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            min-height: 180px;
+            transition: all 0.3s ease;
+            background: rgba(13, 17, 23, 0.5);
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            min-height: 200px;
         }
 
         .upload-area:hover {
@@ -122,21 +138,24 @@
             background: rgba(88, 166, 255, 0.05);
         }
 
-        .upload-area.dragover {
-            border-color: #58a6ff;
-            background: rgba(88, 166, 255, 0.1);
+        .upload-area.reference:hover {
+            border-color: #a371f7;
+            background: rgba(163, 113, 247, 0.05);
         }
 
         .upload-area.has-image {
-            border-style: solid;
-            border-color: #238636;
+            padding: 12px;
         }
 
         .upload-icon {
-            width: 40px;
-            height: 40px;
-            color: #8b949e;
+            width: 48px;
+            height: 48px;
             margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .upload-area.reference .upload-icon {
+            color: #a371f7;
         }
 
         .upload-text {
@@ -147,7 +166,7 @@
 
         .upload-hint {
             color: #6e7681;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
         }
 
         .file-input {
@@ -156,7 +175,7 @@
 
         .preview-image {
             max-width: 100%;
-            max-height: 150px;
+            max-height: 180px;
             border-radius: 8px;
             display: none;
             object-fit: contain;
@@ -167,47 +186,49 @@
         }
 
         .clear-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(248, 81, 73, 0.9);
-            color: white;
-            border: none;
+            margin-top: 8px;
+            padding: 4px 12px;
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
             border-radius: 6px;
-            padding: 4px 10px;
-            font-size: 0.75rem;
+            color: #f85149;
+            font-size: 0.8rem;
             cursor: pointer;
             display: none;
         }
 
         .clear-btn.visible {
-            display: block;
+            display: inline-block;
         }
 
+        .clear-btn:hover {
+            background: rgba(248, 81, 73, 0.2);
+        }
+
+        /* Form Controls */
         .form-group {
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
 
-        .form-group label {
+        label {
             display: block;
-            font-size: 0.9rem;
             font-weight: 500;
-            color: #e6edf3;
             margin-bottom: 8px;
+            color: #e6edf3;
         }
 
         textarea {
             width: 100%;
-            padding: 14px;
+            padding: 14px 16px;
             background: #0d1117;
             border: 1px solid #30363d;
             border-radius: 10px;
             color: #e6edf3;
             font-family: inherit;
-            font-size: 0.95rem;
+            font-size: 1rem;
             resize: vertical;
-            min-height: 120px;
-            transition: border-color 0.2s;
+            min-height: 100px;
+            transition: border-color 0.2s ease;
         }
 
         textarea:focus {
@@ -219,7 +240,7 @@
             color: #6e7681;
         }
 
-        .chips {
+        .suggestion-chips {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
@@ -227,23 +248,37 @@
         }
 
         .chip {
+            padding: 6px 12px;
             background: rgba(88, 166, 255, 0.1);
             border: 1px solid rgba(88, 166, 255, 0.3);
-            color: #58a6ff;
-            padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.8rem;
+            color: #58a6ff;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         .chip:hover {
             background: rgba(88, 166, 255, 0.2);
+            border-color: #58a6ff;
         }
 
+        .chip.reference-chip {
+            background: rgba(163, 113, 247, 0.1);
+            border-color: rgba(163, 113, 247, 0.3);
+            color: #a371f7;
+        }
+
+        .chip.reference-chip:hover {
+            background: rgba(163, 113, 247, 0.2);
+            border-color: #a371f7;
+        }
+
+        /* Submit Button */
         .submit-btn {
             width: 100%;
-            padding: 16px;
+            padding: 16px 24px;
+            margin-top: 20px;
             background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
             border: none;
             border-radius: 10px;
@@ -252,7 +287,7 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -261,27 +296,22 @@
 
         .submit-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(35, 134, 54, 0.4);
+            box-shadow: 0 8px 24px rgba(35, 134, 54, 0.4);
         }
 
         .submit-btn:disabled {
-            background: #21262d;
-            color: #6e7681;
+            opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .submit-btn.loading {
-            background: #1f6feb;
-        }
-
-        .submit-btn .spinner {
+        /* Loading State */
+        .spinner {
             width: 20px;
             height: 20px;
             border: 2px solid rgba(255,255,255,0.3);
             border-top-color: white;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
             display: none;
         }
 
@@ -298,26 +328,31 @@
         }
 
         /* Result Panel */
-        .result-placeholder {
+        .result-area {
+            min-height: 300px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 400px;
-            color: #6e7681;
+        }
+
+        .result-placeholder {
             text-align: center;
+            color: #6e7681;
         }
 
         .result-placeholder svg {
-            width: 64px;
-            height: 64px;
+            width: 80px;
+            height: 80px;
             margin-bottom: 16px;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
         .result-image {
-            width: 100%;
+            max-width: 100%;
+            max-height: 500px;
             border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             display: none;
         }
 
@@ -329,55 +364,53 @@
             display: none;
             gap: 12px;
             margin-top: 20px;
+            width: 100%;
         }
 
         .result-actions.visible {
             display: flex;
         }
 
-        .result-btn {
+        .action-btn {
             flex: 1;
             padding: 12px 20px;
             border-radius: 8px;
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            transition: all 0.2s ease;
         }
 
-        .result-btn.primary {
-            background: #238636;
+        .action-btn.primary {
+            background: #58a6ff;
             border: none;
-            color: white;
+            color: #0d1117;
         }
 
-        .result-btn.primary:hover {
-            background: #2ea043;
+        .action-btn.primary:hover {
+            background: #79b8ff;
         }
 
-        .result-btn.secondary {
+        .action-btn.secondary {
             background: transparent;
             border: 1px solid #30363d;
             color: #e6edf3;
         }
 
-        .result-btn.secondary:hover {
+        .action-btn.secondary:hover {
             border-color: #58a6ff;
             color: #58a6ff;
         }
 
+        /* Error State */
         .error-message {
             background: rgba(248, 81, 73, 0.1);
-            border: 1px solid rgba(248, 81, 73, 0.3);
-            color: #f85149;
-            padding: 14px;
+            border: 1px solid rgba(248, 81, 73, 0.4);
             border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 16px;
+            color: #f85149;
+            margin-top: 16px;
             display: none;
         }
 
@@ -385,6 +418,7 @@
             display: block;
         }
 
+        /* Status Indicator */
         .status {
             display: flex;
             align-items: center;
@@ -414,6 +448,7 @@
             50% { opacity: 0.4; }
         }
 
+        /* Mode indicator */
         .mode-badge {
             display: inline-block;
             padding: 4px 10px;
@@ -467,13 +502,15 @@
 
                     <!-- Reference Image Upload -->
                     <div class="upload-container">
-                        <div class="upload-label">Reference Image (Optional)</div>
-                        <div class="upload-area" id="referenceUploadArea">
+                        <div class="upload-label">Reference Image <span class="optional">(optional)</span></div>
+                        <div class="upload-area reference" id="referenceUploadArea">
                             <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                <path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/>
+                                <path d="M9 9l3 3m0 0l3-3m-3 3V6"/>
+                                <path d="M9 15h6"/>
                             </svg>
                             <p class="upload-text">Drop reference image here</p>
-                            <p class="upload-hint">Style to emulate</p>
+                            <p class="upload-hint">Image style to emulate</p>
                             <img class="preview-image" id="referencePreview" alt="Reference Preview">
                             <button class="clear-btn" id="clearReference">Remove</button>
                         </div>
@@ -482,184 +519,236 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="prompt">What would you like to add or change?</label>
+                    <label for="prompt">What would you like to do?</label>
                     <textarea 
                         id="prompt" 
-                        placeholder="Example: Add a fresh whole wheat sandwich with turkey, lettuce, tomato, and melted Swiss cheese sitting inside the open container. Make it look appetizing and ready to eat."
+                        placeholder="Example: Add a fresh sandwich inside the container..."
                     ></textarea>
-                    
-                    <div class="chips">
-                        <span class="chip" data-prompt="Add fresh food inside the container">Add Food</span>
-                        <span class="chip" data-prompt="Place on a clean white background">White Background</span>
-                        <span class="chip" data-prompt="Add soft studio lighting">Studio Lighting</span>
-                        <span class="chip" data-prompt="Make colors more vibrant">Enhance Colors</span>
-                        <span class="chip" data-prompt="Add lifestyle props around the product">Add Props</span>
+                    <div class="suggestion-chips">
+                        <span class="chip" data-prompt="Add appetizing food inside the container that looks fresh and ready to eat">Add food</span>
+                        <span class="chip" data-prompt="Place the product on a clean kitchen countertop with soft natural lighting">Kitchen scene</span>
+                        <span class="chip" data-prompt="Add steam rising from the product to show it's hot and fresh">Add steam</span>
+                        <span class="chip reference-chip" data-prompt="Place my product into a scene matching the style, lighting, and composition of the reference image. Keep my product exactly as shown but recreate the environment around it.">Match reference style</span>
                     </div>
                 </div>
 
                 <button class="submit-btn" id="submitBtn" disabled>
-                    <span class="spinner"></span>
                     <span class="btn-text">Generate Enhanced Image</span>
+                    <div class="spinner"></div>
                 </button>
+
+                <div class="error-message" id="errorMessage"></div>
             </div>
 
             <!-- Result Panel -->
             <div class="panel">
                 <div class="panel-title">Enhanced Result</div>
                 
-                <div class="error-message" id="errorMessage"></div>
-                
                 <div class="status hidden" id="status">
-                    <span class="status-dot"></span>
+                    <div class="status-dot"></div>
                     <span id="statusText">Processing your image...</span>
                 </div>
 
-                <div class="result-placeholder" id="resultPlaceholder">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <path d="M21 15l-5-5L5 21"/>
-                    </svg>
-                    <p>Your enhanced image will appear here</p>
-                </div>
-
-                <img class="result-image" id="resultImage" alt="Enhanced Result">
-
-                <div class="result-actions" id="resultActions">
-                    <button class="result-btn primary" id="downloadBtn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                <div class="result-area">
+                    <div class="result-placeholder" id="resultPlaceholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
                         </svg>
-                        Download
-                    </button>
-                    <button class="result-btn secondary" id="retryBtn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 4v6h6M23 20v-6h-6"/>
-                            <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
-                        </svg>
-                        Try Different Prompt
-                    </button>
+                        <p>Your enhanced image will appear here</p>
+                    </div>
+                    <img class="result-image" id="resultImage" alt="Enhanced Result">
+                    <div class="result-actions" id="resultActions">
+                        <button class="action-btn secondary" id="retryBtn">Try Different Prompt</button>
+                        <button class="action-btn primary" id="downloadBtn">Download Image</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Configuration
         const WEBHOOK_URL = 'https://n8n.fiorsaoirse.com/webhook/amazon-image-editor';
 
-        // Elements
+        // DOM Elements
         const productUploadArea = document.getElementById('productUploadArea');
-        const productInput = document.getElementById('productInput');
-        const productPreview = document.getElementById('productPreview');
-        const clearProduct = document.getElementById('clearProduct');
-
         const referenceUploadArea = document.getElementById('referenceUploadArea');
+        const productInput = document.getElementById('productInput');
         const referenceInput = document.getElementById('referenceInput');
+        const productPreview = document.getElementById('productPreview');
         const referencePreview = document.getElementById('referencePreview');
+        const clearProduct = document.getElementById('clearProduct');
         const clearReference = document.getElementById('clearReference');
-
-        const modeBadge = document.getElementById('modeBadge');
         const promptTextarea = document.getElementById('prompt');
         const submitBtn = document.getElementById('submitBtn');
-        const resultPlaceholder = document.getElementById('resultPlaceholder');
-        const resultImage = document.getElementById('resultImage');
-        const resultActions = document.getElementById('resultActions');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const retryBtn = document.getElementById('retryBtn');
         const errorMessage = document.getElementById('errorMessage');
         const status = document.getElementById('status');
         const statusText = document.getElementById('statusText');
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const resultImage = document.getElementById('resultImage');
+        const resultActions = document.getElementById('resultActions');
+        const retryBtn = document.getElementById('retryBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
         const chips = document.querySelectorAll('.chip');
+        const modeBadge = document.getElementById('modeBadge');
 
-        let productBase64 = null;
-        let referenceBase64 = null;
+        // State
+        let productImageBase64 = null;
+        let productMimeType = null;
+        let referenceImageBase64 = null;
+        let referenceMimeType = null;
 
-        // Setup upload handlers
-        function setupUploadArea(area, input, preview, clearBtn, setBase64) {
-            area.addEventListener('click', () => input.click());
+        // File Upload Handling - Product
+        productUploadArea.addEventListener('click', (e) => {
+            if (e.target !== clearProduct) productInput.click();
+        });
+        
+        productUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            productUploadArea.style.borderColor = '#58a6ff';
+        });
+
+        productUploadArea.addEventListener('dragleave', () => {
+            productUploadArea.style.borderColor = '#30363d';
+        });
+
+        productUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            productUploadArea.style.borderColor = '#30363d';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleProductUpload(file);
+            }
+        });
+
+        productInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleProductUpload(file);
+        });
+
+        // File Upload Handling - Reference
+        referenceUploadArea.addEventListener('click', (e) => {
+            if (e.target !== clearReference) referenceInput.click();
+        });
+        
+        referenceUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            referenceUploadArea.style.borderColor = '#a371f7';
+        });
+
+        referenceUploadArea.addEventListener('dragleave', () => {
+            referenceUploadArea.style.borderColor = '#30363d';
+        });
+
+        referenceUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            referenceUploadArea.style.borderColor = '#30363d';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleReferenceUpload(file);
+            }
+        });
+
+        referenceInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleReferenceUpload(file);
+        });
+
+        function handleProductUpload(file) {
+            productMimeType = file.type;
             
-            area.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                area.classList.add('dragover');
-            });
-
-            area.addEventListener('dragleave', () => {
-                area.classList.remove('dragover');
-            });
-
-            area.addEventListener('drop', (e) => {
-                e.preventDefault();
-                area.classList.remove('dragover');
-                const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    handleFile(file, preview, clearBtn, area, setBase64);
-                }
-            });
-
-            input.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    handleFile(file, preview, clearBtn, area, setBase64);
-                }
-            });
-
-            clearBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                preview.src = '';
-                preview.classList.remove('visible');
-                clearBtn.classList.remove('visible');
-                area.classList.remove('has-image');
-                input.value = '';
-                setBase64(null);
-                updateUI();
-            });
-        }
-
-        function handleFile(file, preview, clearBtn, area, setBase64) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                preview.src = e.target.result;
-                preview.classList.add('visible');
-                clearBtn.classList.add('visible');
-                area.classList.add('has-image');
+                const base64Full = e.target.result;
+                productImageBase64 = base64Full.split(',')[1];
                 
-                // Hide the upload UI elements
-                area.querySelector('.upload-icon').style.display = 'none';
-                area.querySelector('.upload-text').style.display = 'none';
-                area.querySelector('.upload-hint').style.display = 'none';
+                productPreview.src = base64Full;
+                productPreview.classList.add('visible');
+                productUploadArea.classList.add('has-image');
+                clearProduct.classList.add('visible');
                 
-                // Extract base64 without data URL prefix
-                const base64 = e.target.result.split(',')[1];
-                setBase64(base64);
+                productUploadArea.querySelector('.upload-icon').style.display = 'none';
+                productUploadArea.querySelector('.upload-text').style.display = 'none';
+                productUploadArea.querySelector('.upload-hint').style.display = 'none';
+                
                 updateUI();
             };
             reader.readAsDataURL(file);
         }
 
-        setupUploadArea(productUploadArea, productInput, productPreview, clearProduct, (val) => { productBase64 = val; });
-        setupUploadArea(referenceUploadArea, referenceInput, referencePreview, clearReference, (val) => { referenceBase64 = val; });
+        function handleReferenceUpload(file) {
+            referenceMimeType = file.type;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Full = e.target.result;
+                referenceImageBase64 = base64Full.split(',')[1];
+                
+                referencePreview.src = base64Full;
+                referencePreview.classList.add('visible');
+                referenceUploadArea.classList.add('has-image');
+                clearReference.classList.add('visible');
+                
+                referenceUploadArea.querySelector('.upload-icon').style.display = 'none';
+                referenceUploadArea.querySelector('.upload-text').style.display = 'none';
+                referenceUploadArea.querySelector('.upload-hint').style.display = 'none';
+                
+                updateUI();
+            };
+            reader.readAsDataURL(file);
+        }
 
-        // Chip click handlers
+        // Clear buttons
+        clearProduct.addEventListener('click', (e) => {
+            e.stopPropagation();
+            productImageBase64 = null;
+            productMimeType = null;
+            productPreview.classList.remove('visible');
+            productUploadArea.classList.remove('has-image');
+            clearProduct.classList.remove('visible');
+            productInput.value = '';
+            
+            productUploadArea.querySelector('.upload-icon').style.display = '';
+            productUploadArea.querySelector('.upload-text').style.display = '';
+            productUploadArea.querySelector('.upload-hint').style.display = '';
+            
+            updateUI();
+        });
+
+        clearReference.addEventListener('click', (e) => {
+            e.stopPropagation();
+            referenceImageBase64 = null;
+            referenceMimeType = null;
+            referencePreview.classList.remove('visible');
+            referenceUploadArea.classList.remove('has-image');
+            clearReference.classList.remove('visible');
+            referenceInput.value = '';
+            
+            referenceUploadArea.querySelector('.upload-icon').style.display = '';
+            referenceUploadArea.querySelector('.upload-text').style.display = '';
+            referenceUploadArea.querySelector('.upload-hint').style.display = '';
+            
+            updateUI();
+        });
+
+        // Prompt Chips
         chips.forEach(chip => {
             chip.addEventListener('click', () => {
-                const currentPrompt = promptTextarea.value.trim();
-                const chipPrompt = chip.dataset.prompt;
-                promptTextarea.value = currentPrompt 
-                    ? `${currentPrompt}. ${chipPrompt}` 
-                    : chipPrompt;
+                promptTextarea.value = chip.dataset.prompt;
                 updateUI();
             });
         });
 
-        // Update UI state
+        promptTextarea.addEventListener('input', updateUI);
+
         function updateUI() {
-            const hasProduct = productBase64 !== null;
-            const hasReference = referenceBase64 !== null;
-            const hasPrompt = promptTextarea.value.trim().length > 0;
-
-            submitBtn.disabled = !hasProduct || !hasPrompt;
-
-            if (hasReference) {
+            // Update submit button
+            submitBtn.disabled = !productImageBase64 || !promptTextarea.value.trim();
+            
+            // Update mode badge
+            if (referenceImageBase64) {
                 modeBadge.textContent = 'Reference Mode';
                 modeBadge.className = 'mode-badge reference';
             } else {
@@ -668,51 +757,71 @@
             }
         }
 
-        promptTextarea.addEventListener('input', updateUI);
-
-        // Submit handler
+        // Form Submission
         submitBtn.addEventListener('click', async () => {
-            if (!productBase64 || !promptTextarea.value.trim()) return;
+            if (!productImageBase64 || !promptTextarea.value.trim()) return;
 
+            // UI: Loading state
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
             errorMessage.classList.remove('visible');
+            status.classList.remove('hidden');
+            statusText.textContent = 'Sending to AI...';
             resultPlaceholder.style.display = 'none';
             resultImage.classList.remove('visible');
             resultActions.classList.remove('visible');
-            status.classList.remove('hidden');
-            statusText.textContent = 'Sending to AI...';
 
             try {
+                statusText.textContent = referenceImageBase64 
+                    ? 'Analyzing reference and generating...' 
+                    : 'Generating enhanced image...';
+
                 const payload = {
-                    productImage: productBase64,
+                    image: productImageBase64,
+                    mimeType: productMimeType,
                     prompt: promptTextarea.value.trim()
                 };
 
-                if (referenceBase64) {
-                    payload.referenceImage = referenceBase64;
+                // Add reference image if present
+                if (referenceImageBase64) {
+                    payload.referenceImage = referenceImageBase64;
+                    payload.referenceMimeType = referenceMimeType;
                 }
-
-                statusText.textContent = 'AI is generating your image...';
 
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(payload)
                 });
 
-                const result = await response.json();
-
                 if (!response.ok) {
-                    throw new Error(result.error || 'Generation failed');
+                    throw new Error(`Server error: ${response.status}`);
                 }
 
-                const imageData = result.image || result.generatedImage || result.output;
+                const data = await response.json();
                 
-                if (!imageData) {
-                    throw new Error('No image in response. Check the n8n execution logs.');
+                // Handle Gemini response
+                let imageData = null;
+                
+                if (data.candidates && data.candidates[0]?.content?.parts) {
+                    for (const part of data.candidates[0].content.parts) {
+                        if (part.inlineData?.data) {
+                            imageData = part.inlineData.data;
+                            break;
+                        }
+                    }
                 }
 
+                if (!imageData) {
+                    if (data.error) {
+                        throw new Error(data.error.message || 'API error');
+                    }
+                    throw new Error('No image returned from AI. Check the n8n execution logs.');
+                }
+
+                // Display result
                 resultImage.src = `data:image/jpeg;base64,${imageData}`;
                 resultImage.classList.add('visible');
                 resultActions.classList.add('visible');
