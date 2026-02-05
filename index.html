@@ -467,6 +467,89 @@
             background: rgba(163, 113, 247, 0.15);
             color: #a371f7;
         }
+
+        /* Iteration indicator */
+        .iteration-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(46, 160, 67, 0.15);
+            color: #3fb950;
+            margin-left: 8px;
+        }
+
+        .iteration-badge.iterating {
+            background: rgba(210, 153, 34, 0.15);
+            color: #d29922;
+        }
+
+        /* Continue editing button */
+        .action-btn.continue {
+            background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+            border: none;
+            color: white;
+        }
+
+        .action-btn.continue:hover {
+            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.4);
+        }
+
+        /* Reset button */
+        .reset-btn {
+            padding: 8px 16px;
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            border-radius: 8px;
+            color: #f85149;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: auto;
+        }
+
+        .reset-btn:hover {
+            background: rgba(248, 81, 73, 0.2);
+            border-color: #f85149;
+        }
+
+        .reset-btn.hidden {
+            display: none;
+        }
+
+        /* Auto-continue notice */
+        .auto-continue-notice {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: rgba(46, 160, 67, 0.1);
+            border: 1px solid rgba(46, 160, 67, 0.3);
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #3fb950;
+        }
+
+        .auto-continue-notice.hidden {
+            display: none;
+        }
+
+        .auto-continue-notice svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Header row for panel title with reset */
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -479,9 +562,13 @@
         <div class="editor-grid">
             <!-- Input Panel -->
             <div class="panel">
-                <div class="panel-title">
-                    Upload Images
-                    <span class="mode-badge single" id="modeBadge">Standard Mode</span>
+                <div class="panel-header">
+                    <div class="panel-title" style="margin-bottom: 0;">
+                        Upload Images
+                        <span class="mode-badge single" id="modeBadge">Standard Mode</span>
+                        <span class="iteration-badge" id="iterationBadge">Iteration 1</span>
+                    </div>
+                    <button class="reset-btn hidden" id="resetBtn">Reset All</button>
                 </div>
                 
                 <div class="upload-row">
@@ -537,6 +624,14 @@
                     <div class="spinner"></div>
                 </button>
 
+                <div class="auto-continue-notice hidden" id="autoContinueNotice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"/>
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    <span>Result will automatically be used as source for next edit</span>
+                </div>
+
                 <div class="error-message" id="errorMessage"></div>
             </div>
 
@@ -561,7 +656,8 @@
                     <img class="result-image" id="resultImage" alt="Enhanced Result">
                     <div class="result-actions" id="resultActions">
                         <button class="action-btn secondary" id="retryBtn">Try Different Prompt</button>
-                        <button class="action-btn primary" id="downloadBtn">Download Image</button>
+                        <button class="action-btn continue" id="continueBtn">Continue Editing</button>
+                        <button class="action-btn primary" id="downloadBtn">Download</button>
                     </div>
                 </div>
             </div>
@@ -591,6 +687,10 @@
         const resultActions = document.getElementById('resultActions');
         const retryBtn = document.getElementById('retryBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+        const continueBtn = document.getElementById('continueBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const iterationBadge = document.getElementById('iterationBadge');
+        const autoContinueNotice = document.getElementById('autoContinueNotice');
         const chips = document.querySelectorAll('.chip');
         const modeBadge = document.getElementById('modeBadge');
 
@@ -599,6 +699,8 @@
         let productMimeType = null;
         let referenceImageBase64 = null;
         let referenceMimeType = null;
+        let currentIteration = 1;
+        let lastResultBase64 = null; // Stores the latest generated image
 
         // File Upload Handling - Product
         productUploadArea.addEventListener('click', (e) => {
@@ -744,9 +846,20 @@
         promptTextarea.addEventListener('input', updateUI);
 
         function updateUI() {
-            // Update submit button
-            submitBtn.disabled = !productImageBase64 || !promptTextarea.value.trim();
-            
+            // Update submit button - enable if we have source (uploaded OR from result) and prompt
+            const hasSource = productImageBase64 || lastResultBase64;
+            submitBtn.disabled = !hasSource || !promptTextarea.value.trim();
+
+            // Update button text based on state
+            const btnText = submitBtn.querySelector('.btn-text');
+            if (lastResultBase64 && !productImageBase64) {
+                btnText.textContent = `Generate Iteration ${currentIteration + 1}`;
+            } else if (currentIteration > 1) {
+                btnText.textContent = `Generate Iteration ${currentIteration + 1}`;
+            } else {
+                btnText.textContent = 'Generate Enhanced Image';
+            }
+
             // Update mode badge
             if (referenceImageBase64) {
                 modeBadge.textContent = 'Reference Mode';
@@ -759,7 +872,24 @@
 
         // Form Submission
         submitBtn.addEventListener('click', async () => {
-            if (!productImageBase64 || !promptTextarea.value.trim()) return;
+            // Determine which image to use as source
+            let sourceImage = productImageBase64;
+            let sourceMimeType = productMimeType;
+
+            // If we have a result and no new upload, auto-use the result
+            if (lastResultBase64 && productImageBase64) {
+                // User has both - use whatever is in product slot
+                // (they may have uploaded a new image)
+            } else if (lastResultBase64) {
+                // Auto-continue: use last result
+                sourceImage = lastResultBase64;
+                sourceMimeType = 'image/jpeg';
+                currentIteration++;
+                iterationBadge.textContent = `Iteration ${currentIteration}`;
+                iterationBadge.classList.add('iterating');
+            }
+
+            if (!sourceImage || !promptTextarea.value.trim()) return;
 
             // UI: Loading state
             submitBtn.classList.add('loading');
@@ -772,13 +902,15 @@
             resultActions.classList.remove('visible');
 
             try {
-                statusText.textContent = referenceImageBase64 
-                    ? 'Analyzing reference and generating...' 
-                    : 'Generating enhanced image...';
+                statusText.textContent = referenceImageBase64
+                    ? 'Analyzing reference and generating...'
+                    : currentIteration > 1
+                        ? `Generating iteration ${currentIteration}...`
+                        : 'Generating enhanced image...';
 
                 const payload = {
-                    image: productImageBase64,
-                    mimeType: productMimeType,
+                    image: sourceImage,
+                    mimeType: sourceMimeType,
                     prompt: promptTextarea.value.trim()
                 };
 
@@ -821,11 +953,22 @@
                     throw new Error('No image returned from AI. Check the n8n execution logs.');
                 }
 
+                // Store result for next iteration
+                lastResultBase64 = imageData;
+
                 // Display result
                 resultImage.src = `data:image/jpeg;base64,${imageData}`;
                 resultImage.classList.add('visible');
                 resultActions.classList.add('visible');
                 status.classList.add('hidden');
+
+                // Show reset button and auto-continue notice
+                resetBtn.classList.remove('hidden');
+                autoContinueNotice.classList.remove('hidden');
+
+                // Clear prompt for next instruction
+                promptTextarea.value = '';
+                promptTextarea.focus();
 
             } catch (error) {
                 console.error('Error:', error);
@@ -845,11 +988,92 @@
             promptTextarea.select();
         });
 
+        // Continue editing - use result as new source
+        continueBtn.addEventListener('click', () => {
+            if (!lastResultBase64) return;
+
+            // Increment iteration
+            currentIteration++;
+
+            // Use result as new product image
+            productImageBase64 = lastResultBase64;
+            productMimeType = 'image/jpeg';
+
+            // Update preview
+            productPreview.src = `data:image/jpeg;base64,${lastResultBase64}`;
+            productPreview.classList.add('visible');
+            productUploadArea.classList.add('has-image');
+            clearProduct.classList.add('visible');
+
+            productUploadArea.querySelector('.upload-icon').style.display = 'none';
+            productUploadArea.querySelector('.upload-text').style.display = 'none';
+            productUploadArea.querySelector('.upload-hint').style.display = 'none';
+
+            // Update iteration badge
+            iterationBadge.textContent = `Iteration ${currentIteration}`;
+            iterationBadge.classList.add('iterating');
+
+            // Hide result actions, keep result visible for reference
+            resultActions.classList.remove('visible');
+
+            // Focus prompt for next edit
+            promptTextarea.value = '';
+            promptTextarea.focus();
+
+            updateUI();
+        });
+
+        // Reset all - start fresh
+        resetBtn.addEventListener('click', () => {
+            // Reset iteration
+            currentIteration = 1;
+            lastResultBase64 = null;
+
+            // Clear product image
+            productImageBase64 = null;
+            productMimeType = null;
+            productPreview.classList.remove('visible');
+            productUploadArea.classList.remove('has-image');
+            clearProduct.classList.remove('visible');
+            productInput.value = '';
+            productUploadArea.querySelector('.upload-icon').style.display = '';
+            productUploadArea.querySelector('.upload-text').style.display = '';
+            productUploadArea.querySelector('.upload-hint').style.display = '';
+
+            // Clear reference image
+            referenceImageBase64 = null;
+            referenceMimeType = null;
+            referencePreview.classList.remove('visible');
+            referenceUploadArea.classList.remove('has-image');
+            clearReference.classList.remove('visible');
+            referenceInput.value = '';
+            referenceUploadArea.querySelector('.upload-icon').style.display = '';
+            referenceUploadArea.querySelector('.upload-text').style.display = '';
+            referenceUploadArea.querySelector('.upload-hint').style.display = '';
+
+            // Clear prompt
+            promptTextarea.value = '';
+
+            // Clear result
+            resultImage.classList.remove('visible');
+            resultActions.classList.remove('visible');
+            resultPlaceholder.style.display = 'block';
+            errorMessage.classList.remove('visible');
+
+            // Reset badges and notices
+            iterationBadge.textContent = 'Iteration 1';
+            iterationBadge.classList.remove('iterating');
+            resetBtn.classList.add('hidden');
+            autoContinueNotice.classList.add('hidden');
+
+            updateUI();
+        });
+
         // Download result
         downloadBtn.addEventListener('click', () => {
             const link = document.createElement('a');
             link.href = resultImage.src;
-            link.download = `enhanced-product-${Date.now()}.jpg`;
+            link.download = `enhanced-product-iter${currentIteration}-${Date.now()}.jpg`;
             link.click();
         });
     </script>
