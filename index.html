@@ -966,8 +966,7 @@
                 resetBtn.classList.remove('hidden');
                 autoContinueNotice.classList.remove('hidden');
 
-                // Clear prompt for next instruction
-                promptTextarea.value = '';
+                // Keep prompt populated so user can tweak and re-generate
                 promptTextarea.focus();
 
             } catch (error) {
@@ -1016,8 +1015,7 @@
             // Hide result actions, keep result visible for reference
             resultActions.classList.remove('visible');
 
-            // Focus prompt for next edit
-            promptTextarea.value = '';
+            // Keep prompt populated so user can tweak and re-generate
             promptTextarea.focus();
 
             updateUI();
