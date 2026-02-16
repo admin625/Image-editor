@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css"/>
     <style>
         * {
             margin: 0;
@@ -550,6 +551,128 @@
             align-items: center;
             margin-bottom: 20px;
         }
+
+        /* Color Picker Section */
+        .color-picker-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(88, 166, 255, 0.05);
+            border: 1px solid #30363d;
+            border-radius: 10px;
+        }
+
+        .color-picker-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #8b949e;
+            margin-bottom: 10px;
+        }
+
+        .color-picker-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .color-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .color-input-wrapper input {
+            width: 100%;
+            padding: 10px 14px 10px 42px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #e6edf3;
+            font-family: 'DM Sans', monospace;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .color-input-wrapper input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        .color-swatch-preview {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid #30363d;
+            pointer-events: none;
+        }
+
+        .add-color-btn {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .add-color-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+        }
+
+        .color-added-tag {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            margin-top: 10px;
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #58a6ff;
+            width: fit-content;
+        }
+
+        .color-added-tag.visible {
+            display: flex;
+        }
+
+        .color-added-tag .tag-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .color-added-tag .remove-color {
+            background: none;
+            border: none;
+            color: #f85149;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0 2px;
+        }
+
+        /* Override Coloris theme to match dark UI */
+        .clr-picker {
+            background: #161b22 !important;
+            border-color: #30363d !important;
+        }
+
+        .clr-picker input {
+            background: #0d1117 !important;
+            color: #e6edf3 !important;
+            border-color: #30363d !important;
+        }
     </style>
 </head>
 <body>
@@ -616,6 +739,23 @@
                         <span class="chip" data-prompt="Place the product on a clean kitchen countertop with soft natural lighting">Kitchen scene</span>
                         <span class="chip" data-prompt="Add steam rising from the product to show it's hot and fresh">Add steam</span>
                         <span class="chip reference-chip" data-prompt="Place my product into a scene matching the style, lighting, and composition of the reference image. Keep my product exactly as shown but recreate the environment around it.">Match reference style</span>
+                    </div>
+                </div>
+
+                <!-- Color Picker -->
+                <div class="color-picker-section">
+                    <div class="color-picker-label">Add a color to your edit</div>
+                    <div class="color-picker-row">
+                        <div class="color-input-wrapper">
+                            <div class="color-swatch-preview" id="colorSwatchPreview" style="background: #667eea;"></div>
+                            <input type="text" id="colorPickerInput" data-coloris value="#667eea">
+                        </div>
+                        <button class="add-color-btn" id="addColorBtn">Add This Color</button>
+                    </div>
+                    <div class="color-added-tag" id="colorAddedTag">
+                        <span class="tag-swatch" id="tagSwatch"></span>
+                        <span id="tagColorText"></span>
+                        <button class="remove-color" id="removeColorBtn">&times;</button>
                     </div>
                 </div>
 
@@ -701,6 +841,7 @@
         let referenceMimeType = null;
         let currentIteration = 1;
         let lastResultBase64 = null; // Stores the latest generated image
+        let selectedColor = null;    // Selected color from color picker
 
         // File Upload Handling - Product
         productUploadArea.addEventListener('click', (e) => {
@@ -908,11 +1049,22 @@
                         ? `Generating iteration ${currentIteration}...`
                         : 'Generating enhanced image...';
 
+                // Build prompt with optional color
+                let finalPrompt = promptTextarea.value.trim();
+                if (selectedColor) {
+                    finalPrompt += `. Incorporate this color prominently: ${selectedColor}`;
+                }
+
                 const payload = {
                     image: sourceImage,
                     mimeType: sourceMimeType,
-                    prompt: promptTextarea.value.trim()
+                    prompt: finalPrompt
                 };
+
+                // Add color as separate field for workflow access
+                if (selectedColor) {
+                    payload.color = selectedColor;
+                }
 
                 // Add reference image if present
                 if (referenceImageBase64) {
@@ -1060,6 +1212,10 @@
             resultPlaceholder.style.display = 'block';
             errorMessage.classList.remove('visible');
 
+            // Clear selected color
+            selectedColor = null;
+            document.getElementById('colorAddedTag').classList.remove('visible');
+
             // Reset badges and notices
             iterationBadge.textContent = 'Iteration 1';
             iterationBadge.classList.remove('iterating');
@@ -1075,6 +1231,50 @@
             link.href = resultImage.src;
             link.download = `enhanced-product-iter${currentIteration}-${Date.now()}.jpg`;
             link.click();
+        });
+
+        // ============================================
+        // COLOR PICKER
+        // ============================================
+
+        const colorPickerInput = document.getElementById('colorPickerInput');
+        const colorSwatchPreview = document.getElementById('colorSwatchPreview');
+        const addColorBtn = document.getElementById('addColorBtn');
+        const colorAddedTag = document.getElementById('colorAddedTag');
+        const tagSwatch = document.getElementById('tagSwatch');
+        const tagColorText = document.getElementById('tagColorText');
+        const removeColorBtn = document.getElementById('removeColorBtn');
+
+        // Update swatch preview when color changes
+        colorPickerInput.addEventListener('input', (e) => {
+            colorSwatchPreview.style.background = e.target.value;
+        });
+
+        // Add color to prompt
+        addColorBtn.addEventListener('click', () => {
+            selectedColor = colorPickerInput.value;
+            tagSwatch.style.background = selectedColor;
+            tagColorText.textContent = selectedColor;
+            colorAddedTag.classList.add('visible');
+        });
+
+        // Remove selected color
+        removeColorBtn.addEventListener('click', () => {
+            selectedColor = null;
+            colorAddedTag.classList.remove('visible');
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+    <script>
+        Coloris({
+            themeMode: 'dark',
+            alpha: false,
+            format: 'hex',
+            swatches: [
+                '#667eea', '#764ba2', '#f59e0b', '#10b981',
+                '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899',
+                '#000000', '#ffffff', '#ff6900', '#0693e3'
+            ]
         });
     </script>
 </body>
